@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PlaceImage } from "./place-image";
 import { cn } from "@/lib/utils";
 
 /** A grouped-list row: category tile, name, a line of facts, and a trailing slot. */
@@ -12,6 +13,7 @@ export function PlaceRow({
   id,
   name,
   category,
+  image,
   detail,
   trailing,
   highlighted,
@@ -20,6 +22,7 @@ export function PlaceRow({
   id: string;
   name: string;
   category: string;
+  image?: string;
   detail?: string;
   trailing?: ReactNode;
   highlighted?: boolean;
@@ -38,7 +41,19 @@ export function PlaceRow({
         href={`/place/${id}`}
         className="flex min-w-0 flex-1 items-center gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        <CategoryTile category={category} />
+        {image ? (
+          <PlaceImage
+            src={image}
+            alt=""
+            category={category}
+            ratio="1/1"
+            width={330}
+            sizes="40px"
+            className="size-10 shrink-0 rounded-xl"
+          />
+        ) : (
+          <CategoryTile category={category} />
+        )}
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[15px] leading-5 font-medium">{name}</span>
           <span className="block truncate text-[13px] leading-5 text-muted-foreground">

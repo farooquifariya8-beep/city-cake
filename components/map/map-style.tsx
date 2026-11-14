@@ -25,9 +25,11 @@ const SATELLITE: MapLibreGL.StyleSpecification = {
     },
     labels: {
       type: "raster",
-      tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png"],
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+      ],
       tileSize: 256,
-      attribution: "© OpenStreetMap contributors © CARTO",
+      attribution: "Esri",
     },
   },
   layers: [

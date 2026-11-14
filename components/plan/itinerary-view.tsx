@@ -1,4 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { PlaceImage } from "@/components/place/place-image";
 import { CircleAlert, Map as MapIcon } from "lucide-react";
 import type { Infer } from "convex/values";
 import type { dayValidator } from "@/convex/schema";
@@ -18,6 +24,9 @@ export function dayMapHref(day: Day): string {
 
 /** Day-by-day timeline of a plan. */
 export function ItineraryView({ days }: { days: Day[] }) {
+  const ids = [...new Set(days.flatMap((d) => d.stops.flatMap((s) => (s.placeId ? [s.placeId] : []))))];
+  const cards = useQuery(api.places.getMany, ids.length ? { ids: ids as Id<"places">[] } : "skip");
+  const images = new Map((cards ?? []).flatMap((c) => (c.image ? [[c._id as string, c.image] as const] : [])));
   return (
     <div className="space-y-6">
       {days.map((day) => (
@@ -69,7 +78,7 @@ export function ItineraryView({ days }: { days: Day[] }) {
               return (
                 <li key={`${stop.name}-${i}`} className="relative">
                   {i > 0 && stop.travelMin !== undefined && stop.travelMin > 0 && (
-                    <p className="ml-[76px] border-t border-hairline py-1.5 text-[12px] text-muted-foreground tabular-nums">
+                    <p className="ml-[124px] border-t border-hairline py-1.5 text-[12px] text-muted-foreground tabular-nums">
                       {formatMinutes(stop.travelMin)} travel, estimated
                     </p>
                   )}
@@ -85,7 +94,19 @@ export function ItineraryView({ days }: { days: Day[] }) {
                         {addMinutes(stop.start, stop.durationMin)}
                       </span>
                     </span>
-                    <CategoryTile category={stop.category} size="sm" className="mt-0.5" />
+                    {stop.placeId && images.get(stop.placeId) ? (
+                      <PlaceImage
+                        src={images.get(stop.placeId)}
+                        alt=""
+                        category={stop.category}
+                        ratio="1/1"
+                        width={330}
+                        sizes="48px"
+                        className="size-12 shrink-0 rounded-xl"
+                      />
+                    ) : (
+                      <CategoryTile category={stop.category} size="md" className="size-12 rounded-xl" />
+                    )}
                     {stop.placeId ? (
                       <Link href={`/place/${stop.placeId}`} className="flex min-w-0 flex-1 rounded-md hover:[&_span:first-child>span:first-child]:underline">
                         {body}

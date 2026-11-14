@@ -213,6 +213,7 @@ export function NearbySheet() {
               id={p._id}
               name={p.name}
               category={p.category}
+              image={p.image}
               detail={p.address ? `${categoryLabel(p.category)} · ${p.address}` : undefined}
               highlighted={highlight === p._id || target?.id === p._id}
               onHover={setHighlight}

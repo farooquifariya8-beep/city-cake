@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
 import { formatDistance } from "@/lib/format";
 import { boundsOf, cityBySlug, haversineM } from "@/lib/geo";
+import { photoFirst } from "@/lib/photo-first";
 import { useUrlState } from "@/lib/use-url-state";
 import { CitySwitcher } from "./city-switcher";
 
@@ -48,7 +49,7 @@ export function ExploreSheet() {
   );
   const raw = q ? searched : listed;
   const results = useMemo(
-    () => (raw && q && cat ? raw.filter((p) => p.category === cat) : raw),
+    () => (raw ? photoFirst(q && cat ? raw.filter((p) => p.category === cat) : raw) : raw),
     [raw, q, cat],
   );
 

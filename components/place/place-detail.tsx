@@ -29,6 +29,7 @@ import { EmptyState, Group } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistance } from "@/lib/format";
+import { photoFirst } from "@/lib/photo-first";
 import { boundsOfCoords, cityBySlug } from "@/lib/geo";
 import { useOrigin } from "@/lib/use-origin";
 import { useRoute, type Profile } from "@/lib/use-route";
@@ -89,7 +90,7 @@ function Detail({ place }: { place: Doc<"places"> }) {
     limit: 9,
   });
   const nearbySights = useMemo(
-    () => sights?.filter((s) => s._id !== place._id).slice(0, 8),
+    () => (sights ? photoFirst(sights.filter((s) => s._id !== place._id), 9).slice(0, 8) : undefined),
     [sights, place._id],
   );
 
@@ -178,6 +179,9 @@ function Detail({ place }: { place: Doc<"places"> }) {
           sizes="(min-width: 768px) 368px, 92vw"
           preload
         />
+      )}
+      {place.image && (place as { imageKind?: string }).imageKind === "representative" && (
+        <p className="mt-1.5 px-1 text-[12px] text-muted-foreground">Similar place, not this exact one</p>
       )}
 
       <div className={cn("flex items-center gap-2", place.image ? "mt-4" : "mt-1")}>
@@ -276,6 +280,7 @@ function Detail({ place }: { place: Doc<"places"> }) {
               id={f._id}
               name={f.name}
               category={f.category}
+              image={f.image}
               highlighted={highlight === f._id}
               onHover={setHighlight}
               trailing={
