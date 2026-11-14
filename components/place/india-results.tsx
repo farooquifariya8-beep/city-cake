@@ -16,21 +16,10 @@ export type PickedPlace = { _id: Id<"places">; name: string; category: string; l
  * "More places in India": OSM search beyond the guide, debounced. Choosing a
  * result adds it to our data with geo.open, then hands back a normal place.
  */
-export function IndiaResults({
-  text,
-  near,
-  onPick,
-  actionLabel,
-}: {
-  text: string;
-  near?: { lat: number; lng: number };
-  onPick: (place: PickedPlace) => void;
-  actionLabel?: string;
-}) {
+/** Debounced OSM search across India, without places already in the guide. */
+export function useIndiaSearch(text: string, near?: { lat: number; lng: number }) {
   const search = useAction(api.geo.search);
-  const open = useMutation(api.geo.open);
   const [state, setState] = useState<{ q: string; results: GeoResult[] | null; error?: boolean }>({ q: "", results: null });
-  const [opening, setOpening] = useState<string | null>(null);
   const q = text.trim();
 
   useEffect(() => {
@@ -47,9 +36,19 @@ export function IndiaResults({
     };
   }, [q, near?.lat, near?.lng, search]);
 
-  if (q.length < 3) return null;
-  const loading = state.q !== q;
+  const active = q.length >= 3;
+  return {
+    active,
+    loading: active && state.q !== q,
+    results: active && state.q === q ? (state.results ?? []) : [],
+    error: active && state.q === q && !!state.error,
+  };
+}
 
+/** Add an India result to our data, then hand back a normal place. */
+export function useOpenGeo(onPick: (place: PickedPlace) => void) {
+  const open = useMutation(api.geo.open);
+  const [opening, setOpening] = useState<string | null>(null);
   async function choose(r: GeoResult) {
     setOpening(r.osmId);
     try {
@@ -61,6 +60,24 @@ export function IndiaResults({
       setOpening(null);
     }
   }
+  return { choose, opening };
+}
+
+export function IndiaResults({
+  text,
+  near,
+  onPick,
+  actionLabel,
+}: {
+  text: string;
+  near?: { lat: number; lng: number };
+  onPick: (place: PickedPlace) => void;
+  actionLabel?: string;
+}) {
+  const { active, loading, results, error } = useIndiaSearch(text, near);
+  const { choose, opening } = useOpenGeo(onPick);
+  if (!active) return null;
+  const state = { results: loading ? null : results, error };
 
   return (
     <section className="mt-3" aria-live="polite">

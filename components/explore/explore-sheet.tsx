@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IndiaResults } from "@/components/place/india-results";
+import { useIndiaSearch, useOpenGeo } from "@/components/place/india-results";
+import { useMyLocation } from "@/lib/use-my-location";
+import { CITIES } from "@/convex/lib/cities";
 import { useQuery } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarRange, ChevronRight, SearchX, WifiOff } from "lucide-react";
+import { CalendarRange, ChevronRight, Loader2, Navigation, SearchX, WifiOff } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { EXPLORE_CATEGORIES } from "@/convex/lib/categories";
 import { CategoryChip } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { toMapPoint, useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
-import { PlaceCard, PlaceCardSkeleton } from "@/components/place/place-card";
+import { GeoPlaceCard, PlaceCard, PlaceCardSkeleton } from "@/components/place/place-card";
 import { SearchField } from "@/components/shell/search-field";
 import { EmptyState } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,31 @@ export function ExploreSheet() {
   const [shown, setShown] = useState(PAGE);
   const highlight = useHighlight();
   const { setHighlight } = useMapActions();
+  const { loc, locate } = useMyLocation();
+  const india = useIndiaSearch(q, { lat: city.lat, lng: city.lng });
+  const { choose, opening } = useOpenGeo((p) => router.push(`/place/${p._id}`));
+
+  // Where the visitor is, against the cities in this guide.
+  const here = useMemo(() => {
+    if (loc.status !== "found") return null;
+    const near = CITIES.map((c) => ({ c, km: haversineM(loc.lat, loc.lng, c.lat, c.lng) / 1000 })).sort(
+      (a, b) => a.km - b.km,
+    )[0];
+    const home = CITIES[0];
+    return {
+      town: loc.town ?? "your location",
+      state: loc.state,
+      inside: near.km * 1000 <= near.c.radiusM + 10_000 ? near.c : null,
+      kmFromHome: Math.round(haversineM(loc.lat, loc.lng, home.lat, home.lng) / 1000),
+    };
+  }, [loc]);
+
+  // Inside the region with no city picked: open the city the visitor is in.
+  useEffect(() => {
+    if (here?.inside && !params.get("city") && here.inside.slug !== citySlug) {
+      set({ city: here.inside.slug === "sambhajinagar" ? null : here.inside.slug });
+    }
+  }, [here, params, citySlug, set]);
 
   // Debounce typing into the URL.
   useEffect(() => {
@@ -81,9 +108,37 @@ export function ExploreSheet() {
 
   return (
     <div className="px-4 pt-2 md:pt-5">
-      <p className="text-[13px] font-medium text-muted-foreground">
-        {city.kind === "home" ? "Home city" : `Day trip, ${city.distanceKm} km by road`}
-      </p>
+      <div className="flex min-h-5 items-center justify-between gap-2 text-[13px] font-medium text-muted-foreground">
+        {here ? (
+          <span className="flex min-w-0 items-center gap-1.5">
+            <Navigation className="size-3.5 shrink-0 text-[var(--route)]" strokeWidth={2} aria-hidden />
+            <span className="truncate">
+              {here.inside?.slug === citySlug
+                ? `You're in ${here.town}`
+                : here.inside
+                  ? `You're in ${here.town}. Showing ${city.name}`
+                  : `You're in ${here.town}${here.state ? `, ${here.state}` : ""}, ${here.kmFromHome} km away`}
+            </span>
+          </span>
+        ) : (
+          <span>{city.kind === "home" ? "Home city" : `Day trip, ${city.distanceKm} km by road`}</span>
+        )}
+        {(loc.status === "idle" || loc.status === "locating") && (
+          <button
+            type="button"
+            onClick={locate}
+            disabled={loc.status === "locating"}
+            className="press flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[var(--route)] hover:bg-accent"
+          >
+            {loc.status === "locating" ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <Navigation className="size-3.5" strokeWidth={2} aria-hidden />
+            )}
+            Use my location
+          </button>
+        )}
+      </div>
       <div className="mt-0.5">
         <CitySwitcher value={citySlug} onChange={changeCity} />
       </div>
@@ -114,11 +169,13 @@ export function ExploreSheet() {
 
       <div className="mt-4 flex items-baseline justify-between">
         <h2 className="text-[17px] font-semibold tracking-tight">
-          {q ? "In this guide" : cat ? categoryLabel(cat) : "Places to see"}
+          {q ? `Results for "${q}"` : cat ? categoryLabel(cat) : "Places to see"}
         </h2>
         {results && (
-          <span className="text-[13px] text-muted-foreground tabular-nums">
-            {results.length} {results.length === 1 ? "place" : "places"}
+          <span className="flex items-center gap-1.5 text-[13px] text-muted-foreground tabular-nums">
+            {india.loading && <Loader2 className="size-3.5 animate-spin" aria-label="Searching across India" />}
+            {results.length + india.results.length}{" "}
+            {results.length + india.results.length === 1 ? "place" : "places"}
           </span>
         )}
       </div>
@@ -129,7 +186,13 @@ export function ExploreSheet() {
             <PlaceCardSkeleton key={i} />
           ))}
         </div>
-      ) : results.length === 0 ? (
+      ) : results.length === 0 && india.results.length === 0 && india.loading ? (
+        <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-5">
+          {Array.from({ length: 4 }, (_, i) => (
+            <PlaceCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : results.length === 0 && india.results.length === 0 ? (
         <EmptyState
           icon={q ? SearchX : WifiOff}
           title={q ? "No places match" : "Nothing here yet"}
@@ -165,6 +228,15 @@ export function ExploreSheet() {
                 )}`}
               />
             ))}
+            {india.results.map((r) => (
+              <GeoPlaceCard
+                key={r.osmId}
+                result={r}
+                opening={opening === r.osmId}
+                onOpen={() => choose(r)}
+                meta={`${categoryLabel(r.category)} · ${r.distanceKm < 10 ? r.distanceKm.toFixed(1) : Math.round(r.distanceKm)} km`}
+              />
+            ))}
           </div>
           {results.length > shown && (
             <Button
@@ -176,10 +248,6 @@ export function ExploreSheet() {
             </Button>
           )}
         </>
-      )}
-
-      {q && (
-        <IndiaResults text={q} near={{ lat: city.lat, lng: city.lng }} onPick={(p) => router.push(`/place/${p._id}`)} />
       )}
 
       <Link

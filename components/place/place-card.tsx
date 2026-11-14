@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { PlaceImage } from "./place-image";
 import { SaveButton } from "./save-button";
+import { Loader2 } from "lucide-react";
+import type { GeoResult } from "@/convex/geo";
 
 /** Airbnb-style card: photo first, then the name and one line of facts. */
 export function PlaceCard({
@@ -64,5 +66,40 @@ export function PlaceCardSkeleton() {
       <Skeleton className="mt-2.5 h-3.5 w-3/4" />
       <Skeleton className="mt-2 h-3 w-1/2" />
     </div>
+  );
+}
+
+/** The same card for a place found across India that isn't in the guide yet. */
+export function GeoPlaceCard({
+  result,
+  meta,
+  opening,
+  onOpen,
+}: {
+  result: GeoResult;
+  meta: string;
+  opening: boolean;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      disabled={opening}
+      className="group block w-full rounded-2xl text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-70"
+    >
+      <div className="relative">
+        <PlaceImage src={undefined} alt={result.name} category={result.category} sizes="45vw" />
+        {opening && (
+          <span className="absolute inset-0 flex items-center justify-center">
+            <Loader2 className="size-5 animate-spin text-cat-ink" aria-label="Opening" />
+          </span>
+        )}
+      </div>
+      <div className="px-0.5 pt-2">
+        <p className="truncate text-[14px] leading-5 font-medium text-foreground">{result.name}</p>
+        <p className="truncate text-[13px] leading-5 text-muted-foreground tabular-nums">{meta}</p>
+      </div>
+    </button>
   );
 }

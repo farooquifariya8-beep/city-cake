@@ -159,3 +159,19 @@ export const open = mutation({
     });
   },
 });
+
+/** Town and state for a point, for "You're in ..." labels. */
+export const reverse = action({
+  args: { lat: v.number(), lng: v.number() },
+  handler: async (_ctx, { lat, lng }): Promise<{ town: string; state?: string } | null> => {
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}&lang=en&limit=1`, {
+      headers: { "User-Agent": UA },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { features?: PhotonFeature[] };
+    const p = data.features?.[0]?.properties;
+    if (!p) return null;
+    const town = p.city ?? p.locality ?? p.district ?? p.county ?? p.name;
+    return town ? { town, state: p.state } : null;
+  },
+});
