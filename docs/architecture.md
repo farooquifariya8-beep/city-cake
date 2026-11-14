@@ -45,7 +45,7 @@ Mutations that need an account throw `NOT_SIGNED_IN`. The UI checks `useConvexAu
 | `/nearby` | map shell, client sheet | geolocation with city-centre fallback, or a place's point (`?lat=&lng=&from=`); facility chips, radius, route here |
 | `/map` | map shell, client sheet | route builder: `?stops=id,id` (2 to 10), `?mode=foot`, `?city=`, `?cat=` |
 | `/plan` | content shell, client | preferences in the URL, live `planner.preview`, save (`?save=1` saves after sign-in) |
-| `/assistant` | content shell, client | chat UI, not connected: a labelled system note links to /plan and /map |
+| `/assistant` | map shell, client sheet | chat UI, not connected: a labelled system note links to /plan and /map; places named in a message (matched with `places.search`) show as photo cards and on the map |
 | `/saved` | content shell, client, protected | saved places and trips (rename, delete, open) |
 | `/saved/[id]` | content shell, client, protected | one saved itinerary |
 | `/signin`, `/signup` | content shell, client | username and password, honour `?next=` |
