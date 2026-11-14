@@ -41,6 +41,27 @@ export const save = mutation({
   },
 });
 
+export const update = mutation({
+  args: {
+    id: v.id("itineraries"),
+    title: v.optional(v.string()),
+    days: v.array(dayValidator),
+    prefs: v.optional(prefsValidator),
+    estCostInr: v.optional(v.number()),
+  },
+  handler: async (ctx, { id, title, days, prefs, estCostInr }) => {
+    const userId = await getAuthUserId(ctx);
+    const it = await ctx.db.get(id);
+    if (!it || it.userId !== userId) throw new Error("NOT_FOUND");
+    await ctx.db.patch(id, {
+      days,
+      ...(title !== undefined ? { title } : {}),
+      ...(prefs !== undefined ? { prefs } : {}),
+      ...(estCostInr !== undefined ? { estCostInr } : {}),
+    });
+  },
+});
+
 export const rename = mutation({
   args: { id: v.id("itineraries"), title: v.string() },
   handler: async (ctx, { id, title }) => {

@@ -46,7 +46,7 @@ bun run build                    # the gate: must pass before you commit
 ## Rules
 
 1. **Browse free, save needs an account.** Every page works signed out except `/saved`. Saving a place or an itinerary prompts sign-in, it never blocks browsing.
-2. **The AI is not connected.** The planner is rule-based (`convex/lib/planner.ts`). The assistant has full UI and says it isn't connected yet. Never call an LLM, never fake a reply that pretends to be one. Keep the planner behind one function so an LLM can replace it later.
+2. **The assistant is real, the planner is rules.** The assistant (`convex/assistant.ts`) calls Groq `openai/gpt-oss-120b` with our places as grounding; the key lives only in the Convex env var `GROQ_API_KEY`, never in code or the browser. It may recommend only places from our data. The trip suggestion is rule-based (`convex/lib/planner.ts`), and users can build or edit any plan by hand.
 3. **Data comes from Convex, never from the browser.** The browser never calls Overpass, Nominatim, OSRM or Wikipedia. Convex actions fetch, Convex tables cache, queries serve. See [docs/data.md](docs/data.md) for the policies this protects.
 4. **One source of truth for categories and cities.** `convex/lib/categories.ts` and `convex/lib/cities.ts`. UI colours, icons, filters and ingest rules all derive from them. Never hard-code a category list in a component.
 5. **Own your files.** When several agents work in parallel, each one edits only the paths its task names. Touching someone else's file means stopping and saying so.

@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as assistant from "../assistant.js";
 import type * as auth from "../auth.js";
 import type * as cities from "../cities.js";
 import type * as favorites from "../favorites.js";
@@ -32,6 +33,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  assistant: typeof assistant;
   auth: typeof auth;
   cities: typeof cities;
   favorites: typeof favorites;

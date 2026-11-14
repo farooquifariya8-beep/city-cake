@@ -11,8 +11,8 @@ A visitor arriving in Chhatrapati Sambhajinagar for two to four days. They know 
 | Explore the city: heritage, sights, museums, temples, food, cafes, shopping, parks, stays | `/explore`, `/explore/[city]`, `/place/[id]` | yes |
 | Find nearby facilities: hospitals, pharmacies, ATMs, transport, fuel, toilets, police | `/nearby` | yes |
 | See places on a map and draw a route between selected places | `/map` | yes |
-| Plan a trip from budget, interests, days, group size and pace | `/plan` | yes, saving needs an account |
-| Ask the travel assistant | `/assistant` | yes (UI only, not connected) |
+| Build a trip by hand (any place, custom stops), or get a suggested plan from budget, interests, days, group size and pace | `/plan` | yes, saving needs an account |
+| Ask the travel assistant (Groq, grounded in our places) | chat popup on map pages | yes |
 | Save favourite places and itineraries | `/saved` | no |
 | Create an account and sign in | `/signup`, `/signin` | n/a |
 
@@ -35,9 +35,9 @@ Rules the planner follows:
 - Ajanta is closed on Mondays and Ellora on Tuesdays. The planner notes this on the stop and doesn't hide it.
 - The same inputs give the same plan.
 
-## The assistant (not connected)
+## The assistant
 
-The full chat UI ships: message list, composer, prompt suggestions, and place cards inside messages. Sending a message adds it to the thread and shows a clear line that the assistant isn't connected yet, with links to the planner and the map. It never invents an answer.
+A chat popup on every map page (a full-screen sheet on mobile). `assistant.chat` sends the conversation to Groq `openai/gpt-oss-120b` with the cities and best-known places as context, and returns the reply plus the places it names, shown as cards the user can open or add to a plan. It recommends only places in our data and never states distances it doesn't know.
 
 ## Out of scope
 

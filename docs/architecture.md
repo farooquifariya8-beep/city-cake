@@ -30,6 +30,8 @@ These signatures are the contract between backend and UI. Change one only by upd
 | `itineraries.list` / `get` / `save` / `rename` / `remove` | queries and mutations | see file | rows |
 | `users.me` | query | none | `{ id, username }` or null |
 | `ingest.prewarmAll` | internal action | none | logs counts per city |
+| `assistant.chat` | action | `{ messages, citySlug?, focusPlaceId? }` | `{ reply, places: PlaceCard[] }` (Groq, grounded in our places) |
+| `itineraries.update` | mutation | `{ id, title?, days, prefs?, estCostInr? }` | edits a saved plan |
 
 `PlaceCard` is defined by `toCard` in `convex/places.ts`. `prefs`, day and stop shapes are validators in `convex/schema.ts`. Import types from `convex/_generated` and those validators. Don't redeclare them in the UI.
 
