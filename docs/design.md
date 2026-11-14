@@ -1,43 +1,43 @@
 # Design
 
-## Direction
+## Direction: Apple Maps meets Airbnb
 
-The app should feel like it belongs to this place. The Deccan has its own colours, and we take them from three real sources:
+The app is map-first and photo-led. It is soft, friendly and precise. The map is the canvas. Content sits on floating rounded sheets above it, the way Apple Maps does it. Places are shown as Airbnb-style photo cards: big rounded images, the name, one line of facts.
 
-- **Ajanta murals.** Red ochre, yellow ochre, malachite green and lapis blue, on lime-plaster cream. Matte, earthy, never neon.
-- **Paithani silk.** Peacock teal, deep magenta, and a gold zari border. Rich colour in bands and borders.
-- **Deccan basalt.** The near-black volcanic stone the caves are cut from. Our dark surfaces and our ink.
+Reference points from the owner's bookmarks:
+- [Lenso UI](https://ui.lenso.dev/) for the iOS design language on the web: sheets, grouped lists, segmented controls, large titles.
+- [square-ui](https://github.com/ln-dev7/square-ui) for crafted shadcn app layouts.
+- [flightcn](https://flightcn.yencheng.dev/) for route drawing on mapcn.
+- [Details that make interfaces feel better](https://jakub.kr/writing/details-that-make-interfaces-feel-better) and [Invisible Details](https://invisibledetails.com/) for the finish: concentric radii, optical alignment, tabular numbers, press states, transitions.
 
-It should be beautiful to look at and calm to use. It is colourful, not monochrome and not plain paper. Colour does a job: every category has its own hue (from `convex/lib/categories.ts`), so a map marker, a tab, a card edge and a legend chip for "heritage" share one ochre. A screen reads by colour before you read a word.
+Local character comes through colour, not decoration. Each category keeps its hue from `convex/lib/categories.ts`, taken from the region (Ajanta ochre and malachite, Paithani peacock and magenta, lapis). Category colour appears in markers, small icon tiles, chips and fallback image tiles. Surfaces stay neutral and light, so the photos and the map carry the colour.
 
-The design agent decides how far to take this. These are the fixed points.
+## Images must blend in
+
+- Every image sits in the same frame: a fixed aspect ratio (4:3 on cards, 16:9 on details), `object-cover`, the card's radius, and a hairline inner border (`ring-1 ring-black/5 ring-inset`) so light photos don't bleed into the page.
+- Places without a photo get a fallback tile in the category's soft tint with the category icon. It is the same size and radius as a photo, so a grid of mixed cards reads evenly.
+- No ASCII art, no decorative illustration inside the app.
 
 ## Fixed rules
 
-From [unslop](https://github.com/heydamir/unslop), adapted:
-
-- **Banned:** hue-shifting gradients, gradient text, coloured glows and shadows, blobs, orbs, glassmorphism, neon borders, emoji as icons, `animate-pulse` and `animate-ping` decoration, shimmer, parallax, bento grids for their own sake.
-- **Allowed and encouraged:** solid colour fields, bands and borders (the Paithani border is a real pattern from the region), illustration, textures drawn from real materials, a small tonal shift inside one hue.
-- **Spacing:** a 4 px grid. Panels pad 16, cards 20 to 24, page edges 24 to 32. Inner radius is the outer radius minus the padding, never below 4.
-- **Type:** Bricolage Grotesque for display (`--font-display`), Geist for text, Geist Mono for numbers that line up (distances, times, prices). Weights 400 and 500, 600 at most. Sentence case everywhere. Tabular figures for data.
-- **Icons:** lucide only, 16 or 18 px, 1.5 stroke, in the text colour or the category colour.
-- **Layout:** app pages keep a 240 to 280 px sidebar on desktop and a bottom bar on mobile. The map gets real height. One primary action per screen, at most one secondary. Long headlines align left.
-- **Motion:** `motion` only. One easing curve for the app. At most one entrance per page load. `transition-colors`, not `transition-all`. Respect `prefers-reduced-motion`.
-- **Copy:** says what the thing does. No "AI-powered", no "seamless", "unlock", "magic", "supercharge". No exclamation marks. No trailing period on short labels. Numbers and names are real, from the data.
-- **Contrast:** text meets 4.5:1 on its surface in both themes.
+- **Banned:** hue-shifting gradients, gradient text, coloured glows, blobs, neon, emoji icons, pulse or shimmer decoration, parallax.
+- **Allowed:** a frosted material (`bg-background/80 backdrop-blur-xl` plus a hairline border) only on panels floating over the map, as Apple Maps does. Nowhere else.
+- **Spacing:** a 4 px grid. Concentric radii: inner radius is the outer radius minus the padding.
+- **Radius:** sheets 20 to 24, cards 16, controls 10 to 12, chips full.
+- **Shadow:** one soft elevation for floating sheets (`0 8px 32px rgb(0 0 0 / 0.12)` with a 1 px hairline). Cards sit flat with a hairline or a very light shadow.
+- **Type:** Geist for all text. Large titles at 28 to 34 px, weight 600, slight negative tracking. Body 15 px. Geist Mono or `tabular-nums` for distances, times and prices. Sentence case.
+- **Icons:** lucide, 16 to 20 px, 1.75 stroke.
+- **Layout:** desktop is a full-height map with a left floating sheet (380 to 420 px) for lists and details. Mobile is the map with a bottom sheet. Pages without a map (plan, saved, assistant) use a centred content column up to 1100 px with a slim top bar.
+- **Motion:** `motion`, one spring for sheets, 150 to 200 ms colour and opacity transitions, `prefers-reduced-motion` respected.
+- **Copy:** say what the thing does, plain words, no exclamation marks, no "AI-powered".
+- **Contrast:** 4.5:1 for text in both themes.
 
 ## Theme tokens
 
-`app/globals.css` holds the tokens. Category colours come from the hue in `categories.ts` through one helper (`lib/category-style.ts`), so a new category gets its colour for free. Light mode is the default; dark mode uses basalt surfaces and the same hues at adjusted lightness.
-
-## Illustration
-
-- **Hero:** an ASCII rendering of a real local landmark (Bibi Ka Maqbara or the Kailasa temple) through the ASCII Magic MCP, tinted in one ink from the palette, shown as a static image with real alt text.
-- **Explainers:** isometric SVG figures in the style of the [anatomy skill](https://skills.wheresryan.sh/anatomy) where a mechanism needs explaining, such as how the planner fills a day. Azimuth 45, elevation 30, one lit accent, a "Fig n" card frame, and live numbers from the same model the figure shows.
-- **Empty states:** small line drawings or ASCII motifs, never stock clip art.
+`app/globals.css` holds the tokens. Category colours come from the hue in `categories.ts` through `lib/category-style.ts`. Light mode is the default and the priority. Dark mode must work but needn't be perfect.
 
 ## Performance budget
 
-- First load JS on `/` under 150 kB gzipped. MapLibre loads only on pages with a map.
-- No WebGL outside at most one hero, lazy loaded, with a static fallback.
-- Images through `next/image` with sizes set. Wikipedia thumbnails, not originals.
+- MapLibre loads once, in the app shell, client side only.
+- `next/image` for every photo with `sizes` set, Wikipedia thumbnails only.
+- No WebGL effects.
