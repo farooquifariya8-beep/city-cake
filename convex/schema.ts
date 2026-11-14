@@ -66,6 +66,8 @@ export default defineSchema({
     wikipedia: v.optional(v.string()), // "en:Bibi Ka Maqbara"
     wikidata: v.optional(v.string()),
     image: v.optional(v.string()),
+    // "representative": the photo shows this kind of place in the region, not the place itself.
+    imageKind: v.optional(v.union(v.literal("exact"), v.literal("representative"))),
     summary: v.optional(v.string()),
     score: v.number(), // popularity heuristic, higher first
     tags: v.optional(v.record(v.string(), v.string())),

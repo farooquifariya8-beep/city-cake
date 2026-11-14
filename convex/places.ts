@@ -15,6 +15,7 @@ export function toCard(p: Doc<"places">) {
     lat: p.lat,
     lng: p.lng,
     image: p.image,
+    imageKind: p.imageKind,
     summary: p.summary,
     address: p.address,
     openingHours: p.openingHours,
