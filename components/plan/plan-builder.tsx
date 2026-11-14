@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { Reorder, useDragControls } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { GripVertical, MapPinPlus, Plus, RotateCcw, Sparkles, Trash2, X } from "lucide-react";
+import { ChevronLeft, GripVertical, MapPinPlus, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import { CategoryTile } from "@/components/category/category-chip";
@@ -21,7 +21,6 @@ import { addMinutes, formatDistance, formatMinutes } from "@/lib/format";
 import { boundsOf, boundsOfCoords, cityBySlug } from "@/lib/geo";
 import {
   addStop,
-  draftFromPlan,
   draftToDays,
   emptyDay,
   EMPTY_DRAFT,
@@ -32,15 +31,14 @@ import {
 } from "@/lib/plan-draft";
 import { useRoute } from "@/lib/use-route";
 import { cn } from "@/lib/utils";
-import { Stepper, SuggestDialog } from "./suggest-dialog";
+import { Stepper } from "./stepper";
 
-export function PlanBuilder() {
+export function PlanBuilder({ back }: { back?: { label: string; onClick: () => void } }) {
   const draft = useDraft();
   const router = useRouter();
   const { isAuthenticated } = useConvexAuth();
   const save = useMutation(api.itineraries.save);
   const update = useMutation(api.itineraries.update);
-  const [suggestOpen, setSuggestOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [text, setText] = useState("");
   const [custom, setCustom] = useState<{ name: string; placing: boolean } | null>(null);
@@ -72,7 +70,13 @@ export function PlanBuilder() {
     },
     [dayIndex],
   );
-  const onPin = useCallback((p: MapPoint) => addPlace(p), [addPlace]);
+  const onPin = useCallback(
+    (p: MapPoint) => {
+      if (stops.some((s) => (s.placeId ?? s.key) === p.id)) toast(`${p.name} is already on day ${dayIndex + 1}`);
+      else addPlace(p);
+    },
+    [addPlace, stops, dayIndex],
+  );
   useMapPointClick(onPin);
 
   const onMapTap = useCallback(
@@ -155,17 +159,20 @@ export function PlanBuilder() {
   return (
     <div className="px-4 pt-2 pb-4 md:pt-5">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[13px] font-medium text-muted-foreground">
-          {draft.editingId ? "Editing a saved trip" : "Your plan"}
-        </p>
-        <div className="flex gap-1">
+        {back ? (
           <button
             type="button"
-            onClick={() => setSuggestOpen(true)}
-            className="press inline-flex h-8 items-center gap-1.5 rounded-full bg-black/[0.055] px-3 text-[13px] font-medium hover:bg-black/10 dark:bg-white/10"
+            onClick={back.onClick}
+            className="press -ml-1.5 inline-flex h-8 items-center gap-0.5 rounded-full pr-2.5 pl-1 text-[13px] font-medium text-link hover:bg-accent"
           >
-            <Sparkles className="size-3.5" aria-hidden /> Suggest a plan
+            <ChevronLeft className="size-4" aria-hidden /> {back.label}
           </button>
+        ) : (
+          <p className="text-[13px] font-medium text-muted-foreground">
+            {draft.editingId ? "Editing a saved trip" : "Your plan"}
+          </p>
+        )}
+        <div className="flex gap-1">
           {!blank && (
             <button
               type="button"
@@ -189,15 +196,9 @@ export function PlanBuilder() {
       />
 
       {blank && (
-        <div className="mt-3 rounded-2xl bg-surface p-4 ring-1 ring-hairline">
-          <p className="text-[15px] font-medium">Start from scratch, or get a suggestion</p>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
-            Tap places on the map or search below to add them to day 1. Or let the planner fill the days, then change anything.
-          </p>
-          <Button className="mt-3 h-9 rounded-full px-4" onClick={() => setSuggestOpen(true)}>
-            <Sparkles aria-hidden /> Suggest a plan
-          </Button>
-        </div>
+        <p className="mt-1 text-[13px] text-muted-foreground">
+          Tap places on the map or search below to add them to day 1.
+        </p>
       )}
 
       {/* Day tabs */}
@@ -384,18 +385,6 @@ export function PlanBuilder() {
           </Button>
         )}
       </div>
-
-      <SuggestDialog
-        open={suggestOpen}
-        onOpenChange={setSuggestOpen}
-        initial={draft.prefs}
-        onUse={(plan, prefs) => {
-          if (!blank && !window.confirm("Replace your current plan with the suggestion?")) return;
-          setDraft({ ...draftFromPlan({ ...plan, prefs }), editingId: draft.editingId });
-          setSuggestOpen(false);
-          toast(`Filled ${plan.days.length} days. Change anything you like.`);
-        }}
-      />
     </div>
   );
 }

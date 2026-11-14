@@ -104,7 +104,7 @@ function MapCanvas() {
       {scene.route && scene.route.length > 1 && <AnimatedRoute coordinates={scene.route} />}
       {scene.origin && <OriginPin origin={scene.origin} />}
       {scene.stops?.map((s, i) => (
-        <StopPin key={`${s.id}-${i}`} point={s} index={i} />
+        <StopPin key={`${s.id}-${i}`} point={s} index={i} onClick={() => bus.getHandler()?.(s)} />
       ))}
       {hovered && <HoverPin key={hovered.id} point={hovered} />}
       {scene.selected && <SelectedPin key={scene.selected.id} point={scene.selected} />}

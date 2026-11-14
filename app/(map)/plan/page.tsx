@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { PlanBuilder } from "@/components/plan/plan-builder";
+import { PlanFlow } from "@/components/plan/plan-flow";
 
 export const metadata: Metadata = { title: "Plan a trip" };
 
 export default function Page() {
-  return <PlanBuilder />;
+  return <PlanFlow />;
 }
