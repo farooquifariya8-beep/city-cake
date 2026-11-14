@@ -43,7 +43,7 @@ export function SuggestDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-3xl sm:max-w-md">
+      <DialogContent className="max-h-[90dvh] grid-cols-[minmax(0,1fr)] overflow-x-hidden overflow-y-auto rounded-3xl sm:max-w-md [&>*]:min-w-0">
         <DialogTitle className="flex items-center gap-2">
           <Sparkles className="size-4 text-[var(--route)]" aria-hidden /> Suggest a plan
         </DialogTitle>
