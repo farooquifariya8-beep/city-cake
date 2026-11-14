@@ -99,7 +99,7 @@ export function ExploreSheet() {
         placeholder={`Search ${city.kind === "home" ? "the city" : city.name}`}
       />
 
-      <div className="scrollbar-none -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
+      <div className="fade-x -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
         <CategoryChip active={!cat} onClick={() => set({ cat: null })} />
         {EXPLORE_CATEGORIES.map((c) => (
           <CategoryChip

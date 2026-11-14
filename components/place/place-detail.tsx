@@ -311,7 +311,7 @@ function Detail({ place }: { place: Doc<"places"> }) {
           <h2 className="mb-2 px-1 text-[13px] font-semibold text-muted-foreground">
             More to see within 3 km
           </h2>
-          <div className="scrollbar-none -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+          <div className="fade-x -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
             {nearbySights.map((s) => (
               <div key={s._id} className="w-40 shrink-0 snap-start">
                 <PlaceCard

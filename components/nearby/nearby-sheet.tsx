@@ -147,7 +147,7 @@ export function NearbySheet() {
         )}
       </div>
 
-      <div className="scrollbar-none -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
+      <div className="fade-x -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
         <CategoryChip active={!cat} onClick={() => (clearRoute(), set({ cat: null }))} label="All facilities" />
         {FACILITY_CATEGORIES.map((c) => (
           <CategoryChip
