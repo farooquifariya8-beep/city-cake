@@ -45,3 +45,7 @@ Explore categories keep only named features. Facilities keep unnamed ones with a
 ## Prewarm
 
 `bunx convex run ingest:prewarmAll` upserts every city in `convex/lib/cities.ts`, one Overpass call per city, a 2 second pause between calls, then enriches up to 40 top places per city from Wikipedia at 1 request a second. It upserts by `osmId`, so a rerun converges to the same rows. It sets `placeCount`, `facilityCount` and `fetchedAt` on each city.
+
+## Enrichment
+
+`bunx convex run enrich:city '{"slug":"sambhajinagar"}'` adds places Overpass missed, using the two sources Convex can still reach. It lays a 5 km grid over the city's radius. A Wikipedia geosearch at each point (10 km, 50 results, 2.5 s apart, backing off on 429) keeps real sights by title, maps them to heritage, religious, museum, park or attraction, and stores the 500 px photo and a two-sentence summary. A sight within 150 m of a place with a similar name (or 1.5 km for an exact name) only fills that place's missing photo and summary; otherwise it is inserted as `wiki/<pageid>` with a score of category weight + 40 for a photo + 10 for a summary. Then one scheduled action per grid point runs Nominatim for restaurant, cafe, hotel, temple, museum, park and mall in a 2.5 km box, 1.1 s apart, and inserts hits whose category matches the phrase and whose `osmId` is new. The last step resets `placeCount` and `facilityCount`. Reruns converge to the same rows.

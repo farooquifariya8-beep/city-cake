@@ -11,6 +11,7 @@
 import type * as assistant from "../assistant.js";
 import type * as auth from "../auth.js";
 import type * as cities from "../cities.js";
+import type * as enrich from "../enrich.js";
 import type * as favorites from "../favorites.js";
 import type * as geo from "../geo.js";
 import type * as images from "../images.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   assistant: typeof assistant;
   auth: typeof auth;
   cities: typeof cities;
+  enrich: typeof enrich;
   favorites: typeof favorites;
   geo: typeof geo;
   images: typeof images;
