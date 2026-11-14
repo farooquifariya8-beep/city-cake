@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { CalendarX2, ChevronLeft, Map as MapIcon } from "lucide-react";
+import { CalendarX2, ChevronLeft, Map as MapIcon, Pencil } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { dayMapHref, ItineraryView } from "@/components/plan/itinerary-view";
@@ -11,11 +11,13 @@ import { EmptyState } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatInr } from "@/lib/format";
+import { draftFromPlan, setDraft } from "@/lib/plan-draft";
 
 /** A saved itinerary, as it was when saved. */
 export function SavedTrip() {
   const { id } = useParams<{ id: string }>();
   const trip = useQuery(api.itineraries.get, { id: id as Id<"itineraries"> });
+  const router = useRouter();
 
   if (trip === undefined) {
     return (
@@ -57,13 +59,24 @@ export function SavedTrip() {
             {trip.estCostInr ? ` · about ${formatInr(trip.estCostInr)} for the group` : ""}
           </p>
         </div>
-        {trip.days[0] && (
-          <Button asChild variant="outline" className="h-9 rounded-full px-3.5">
-            <Link href={dayMapHref(trip.days[0])}>
-              <MapIcon strokeWidth={2} aria-hidden /> Show on map
-            </Link>
+        <div className="flex gap-2">
+          {trip.days[0] && (
+            <Button asChild variant="outline" className="h-9 rounded-full px-3.5">
+              <Link href={dayMapHref(trip.days[0])}>
+                <MapIcon strokeWidth={2} aria-hidden /> Show on map
+              </Link>
+            </Button>
+          )}
+          <Button
+            className="h-9 rounded-full px-3.5"
+            onClick={() => {
+              setDraft(draftFromPlan({ ...trip, editingId: trip._id }));
+              router.push("/plan");
+            }}
+          >
+            <Pencil strokeWidth={2} aria-hidden /> Edit
           </Button>
-        )}
+        </div>
       </div>
       <div className="mt-6">
         <ItineraryView days={trip.days} />

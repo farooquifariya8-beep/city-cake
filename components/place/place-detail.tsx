@@ -17,6 +17,7 @@ import {
   UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { EXPLORE_CATEGORIES, FACILITY_CATEGORIES } from "@/convex/lib/categories";
@@ -29,6 +30,7 @@ import { EmptyState, Group } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistance } from "@/lib/format";
+import { addStop, useDraft } from "@/lib/plan-draft";
 import { photoFirst } from "@/lib/photo-first";
 import { boundsOfCoords, cityBySlug } from "@/lib/geo";
 import { useOrigin } from "@/lib/use-origin";
@@ -65,6 +67,7 @@ export function PlaceDetail() {
 
 function Detail({ place }: { place: Doc<"places"> }) {
   const router = useRouter();
+  const draft = useDraft();
   const city = cityBySlug(place.citySlug);
   const { saved, onToggle } = useSavePlace(place._id, place.name);
   const { origin, locate } = useOrigin(city);
@@ -208,8 +211,13 @@ function Detail({ place }: { place: Doc<"places"> }) {
         />
         <ActionButton
           icon={Plus}
-          label="Add to route"
-          onClick={() => router.push(`/map?city=${place.citySlug}&stops=${place._id}`)}
+          label={`Add to day ${draft.activeDay + 1}`}
+          onClick={() => {
+            addStop(draft.activeDay, { placeId: place._id, name: place.name, category: place.category, lat: place.lat, lng: place.lng });
+            toast(`Added to day ${draft.activeDay + 1} of your plan`, {
+              action: { label: "Open plan", onClick: () => router.push("/plan") },
+            });
+          }}
         />
       </div>
 

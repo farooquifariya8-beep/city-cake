@@ -65,12 +65,21 @@ export type MapBus = {
   setHandler: (h: PointHandler | null) => void;
   getInset: () => number;
   setInset: (px: number) => void;
+  getMapClick: () => MapClickHandler | null;
+  setMapClick: (h: MapClickHandler | null) => void;
 };
+
+type MapClickHandler = (lngLat: { lng: number; lat: number }) => void;
 
 function createBus(): MapBus {
   let handler: PointHandler | null = null;
   let inset = 0;
+  let mapClick: MapClickHandler | null = null;
   return {
+    getMapClick: () => mapClick,
+    setMapClick: (h) => {
+      mapClick = h;
+    },
     getHandler: () => handler,
     setHandler: (h) => {
       handler = h;
@@ -122,6 +131,15 @@ export function useMapScene(scene: Scene) {
     setScene(scene);
   }, [scene, setScene]);
   useEffect(() => () => setScene(EMPTY_SCENE), [setScene]);
+}
+
+/** While set, a tap anywhere on the map calls the handler (for dropping a custom stop). */
+export function useMapClick(handler: MapClickHandler | null) {
+  const { bus } = useMapActions();
+  useEffect(() => {
+    bus.setMapClick(handler);
+    return () => bus.setMapClick(null);
+  }, [handler, bus]);
 }
 
 /** Replace what tapping a marker does while the calling page is mounted. */

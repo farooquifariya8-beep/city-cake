@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { animate } from "motion/react";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Map, MapControls, MapRoute, RouteProgress } from "@/components/ui/map";
+import { Map, MapControls, MapRoute, RouteProgress, useMap } from "@/components/ui/map";
 import { LogoMark } from "@/components/shell/logo";
 import { HeaderControls } from "@/components/shell/nav-tabs";
 import { Segmented } from "@/components/shell/segmented";
@@ -46,6 +46,21 @@ function AnimatedRoute({ coordinates }: { coordinates: LngLat[] }) {
   );
 }
 
+/** Forwards plain map taps to the page while it asks for one. */
+function MapClickBridge() {
+  const { map } = useMap();
+  const { bus } = useMapActions();
+  useEffect(() => {
+    if (!map) return;
+    const onClick = (e: { lngLat: { lng: number; lat: number } }) => bus.getMapClick()?.(e.lngLat);
+    map.on("click", onClick);
+    return () => {
+      map.off("click", onClick);
+    };
+  }, [map, bus]);
+  return null;
+}
+
 function MapCanvas() {
   const scene = useScene();
   const highlight = useHighlight();
@@ -83,6 +98,7 @@ function MapCanvas() {
       className="absolute inset-0"
     >
       <Map3D mode={mode} />
+      <MapClickBridge />
       <PlacesLayer points={scene.points} font={MAP_FONTS[mode]} onImagery={mode === "satellite"} onPointClick={onPointClick} onHover={setHighlight} />
       {scene.route && scene.route.length > 1 && <AnimatedRoute coordinates={scene.route} />}
       {scene.origin && <OriginPin origin={scene.origin} />}
