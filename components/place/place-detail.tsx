@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { useCallback, useMemo, useState } from "react";
 import {
   ChevronLeft,
+  CornerUpRight,
   Clock,
   Globe,
   Heart,
@@ -32,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistance } from "@/lib/format";
 import { addStop, useDraft } from "@/lib/plan-draft";
+import { navigateToUrl } from "@/lib/google-maps";
 import { photoFirst } from "@/lib/photo-first";
 import { boundsOfCoords, cityBySlug, HOME_CITY } from "@/lib/geo";
 import { useOrigin } from "@/lib/use-origin";
@@ -197,13 +199,23 @@ function Detail({ place }: { place: Doc<"places"> }) {
       </div>
       <h1 className="large-title mt-1.5">{place.name}</h1>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-4 gap-2">
         <ActionButton
           icon={Navigation}
           label="Directions"
           primary
           onClick={() => startDirections(profile)}
         />
+        <a
+          href={navigateToUrl(place)}
+          target="_blank"
+          rel="noreferrer"
+          title="Turn-by-turn in Google Maps"
+          className="press flex h-14 flex-col items-center justify-center gap-1 rounded-xl bg-black/[0.055] text-[12px] font-medium text-foreground outline-none hover:bg-black/[0.08] focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-white/10 dark:hover:bg-white/15"
+        >
+          <CornerUpRight className="size-[18px]" strokeWidth={2} aria-hidden />
+          Navigate
+        </a>
         <ActionButton
           icon={Heart}
           label={saved ? "Saved" : "Save"}
@@ -356,7 +368,7 @@ function ActionButton({
       onClick={onClick}
       aria-pressed={pressed}
       className={cn(
-        "press flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[12px] font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+        "press flex h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[12px] leading-4 font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
         primary
           ? "bg-[var(--route)] text-white hover:brightness-110"
           : "bg-black/[0.055] text-foreground hover:bg-black/[0.08] dark:bg-white/10 dark:hover:bg-white/15",
@@ -375,7 +387,8 @@ function DetailSkeleton() {
       <Skeleton className="mt-3 aspect-video rounded-2xl" />
       <Skeleton className="mt-4 h-4 w-24" />
       <Skeleton className="mt-2 h-7 w-3/4 rounded-lg" />
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-4 gap-2">
+        <Skeleton className="h-14 rounded-xl" />
         <Skeleton className="h-14 rounded-xl" />
         <Skeleton className="h-14 rounded-xl" />
         <Skeleton className="h-14 rounded-xl" />

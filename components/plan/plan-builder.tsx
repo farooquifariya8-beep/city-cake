@@ -29,8 +29,10 @@ import {
   useDraft,
   type DraftStop,
 } from "@/lib/plan-draft";
+import { useMyLocation } from "@/lib/use-my-location";
 import { useRoute } from "@/lib/use-route";
 import { cn } from "@/lib/utils";
+import { DayNavigation, useLivePosition } from "./day-navigation";
 import { Stepper } from "./stepper";
 
 export function PlanBuilder({ back }: { back?: { label: string; onClick: () => void } }) {
@@ -42,6 +44,9 @@ export function PlanBuilder({ back }: { back?: { label: string; onClick: () => v
   const [saving, setSaving] = useState(false);
   const [text, setText] = useState("");
   const [custom, setCustom] = useState<{ name: string; placing: boolean } | null>(null);
+  const [live, setLive] = useState(false);
+  const position = useLivePosition(live);
+  const { loc } = useMyLocation();
 
   const dayIndex = draft.activeDay;
   const day = draft.days[dayIndex];
@@ -108,13 +113,14 @@ export function PlanBuilder({ back }: { back?: { label: string; onClick: () => v
       points: (cityPlaces ?? []).map(toMapPoint),
       stops: stopPoints,
       route: routeCoords,
+      origin: position.status === "on" ? { lat: position.lat, lng: position.lng, kind: "user" } : null,
       camera: routeCoords
         ? { key: `plan-route:${dayIndex}:${routeKey}`, bounds: boundsOfCoords(routeCoords) }
         : stopPoints.length
           ? { key: `plan-stops:${dayIndex}:${routeKey}`, bounds: boundsOf(stopPoints), maxZoom: 15 }
           : { key: `plan-city:${day.citySlug}`, center: [city.lng, city.lat], zoom: 12.5 },
     };
-  }, [stops, cityPlaces, routeCoords, dayIndex, routeKey, day.citySlug, city.lat, city.lng]);
+  }, [stops, cityPlaces, routeCoords, dayIndex, routeKey, day.citySlug, city.lat, city.lng, position]);
   useMapScene(scene);
 
   async function onSave() {
@@ -256,6 +262,8 @@ export function PlanBuilder({ back }: { back?: { label: string; onClick: () => v
           {stops.length > 10 ? " · route shows the first 10 stops" : ""}
         </p>
       )}
+
+      <DayNavigation dayNumber={dayIndex + 1} stops={stops} loc={loc} live={live} onLive={setLive} position={position} />
 
       {/* Stops */}
       {stops.length === 0 ? (
