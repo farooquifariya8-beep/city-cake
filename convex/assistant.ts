@@ -1,7 +1,6 @@
 import { action, internalQuery } from "./_generated/server";
 import { api, internal } from "./_generated/api";
-import { v, type Infer } from "convex/values";
-import { dayValidator, prefsValidator } from "./schema";
+import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { CATEGORIES, CATEGORY_KEYS, type Category } from "./lib/categories";
 import { CITIES } from "./lib/cities";
@@ -90,32 +89,13 @@ const TOOLS = [
       },
     },
   },
-  {
-    type: "function",
-    function: {
-      name: "create_plan",
-      description: "Make a day-by-day trip plan with times, using the app's planner. Call it whenever the user asks for a plan, itinerary or schedule. Ask nothing first: use sensible defaults for anything not given.",
-      parameters: {
-        type: "object",
-        properties: {
-          days: { type: "integer", description: "1 to 5, default 2" },
-          budget: { type: "string", enum: ["shoestring", "comfort", "splurge"] },
-          interests: { type: "array", items: { type: "string" }, description: `Categories from: ${CATEGORY_LIST}` },
-          group_size: { type: "integer", description: "Default 2" },
-          pace: { type: "string", enum: ["relaxed", "balanced", "packed"] },
-          include_day_trips: { type: "boolean", description: "Add Ellora, Daulatabad, Ajanta and others on later days. Default true when days >= 2" },
-          start_date: { type: "string", description: "YYYY-MM-DD, optional, used for weekly closures" },
-        },
-      },
-    },
-  },
 ] as const;
 
 const SYSTEM = [
   "You are the City Cake travel assistant for Chhatrapati Sambhajinagar (formerly Aurangabad), Maharashtra, India, and its day trips: Ellora (29 km), Daulatabad (16 km), Ajanta (104 km), Paithan (56 km), Jalna (62 km), Lonar (160 km).",
   "Use the tools to get facts: places, what is nearby, and real travel times. Never invent places, distances, times, prices or phone numbers. If a tool returns nothing, say so.",
   "Known facts: Ajanta Caves are closed on Mondays. Ellora Caves are closed on Tuesdays. Both open about 9:00 to 17:30. Bibi Ka Maqbara is open daily, sunrise to 22:00.",
-  "When the user asks for a plan or itinerary, call create_plan. Then reply in two or three sentences: the shape of each day and one tip. The app shows the full plan.",
+  "If the user asks you to plan a trip, say the Plan page builds one from a start, a destination and the stops they pick along the way, and answer any specific question they have.",
   "Write place names exactly as the tools return them. Keep answers short: one or two sentences, then a short list if useful. Plain words, no exclamation marks, no emoji, no tables.",
 ].join("\n");
 
@@ -171,9 +151,6 @@ export const near = internalQuery({
   },
 });
 
-type Prefs = Infer<typeof prefsValidator>;
-type PlanOut = { title: string; days: Infer<typeof dayValidator>[]; estCostInr: number; prefs: Prefs };
-
 type Point = { name: string; lat: number; lng: number; doc?: Doc<"places"> };
 
 export const chat = action({
@@ -182,14 +159,13 @@ export const chat = action({
     citySlug: v.optional(v.string()),
     focusPlaceId: v.optional(v.id("places")),
   },
-  handler: async (ctx, { messages, citySlug, focusPlaceId }): Promise<{ reply: string; places: PlaceCard[]; plan?: PlanOut }> => {
+  handler: async (ctx, { messages, citySlug, focusPlaceId }): Promise<{ reply: string; places: PlaceCard[] }> => {
     const key = process.env.GROQ_API_KEY;
     if (!key) throw new Error("ASSISTANT_NOT_CONFIGURED");
     const turns = messages.slice(-MAX_TURNS).map((m) => ({ role: m.role, content: m.content.slice(0, MAX_CHARS) }));
     if (turns.length === 0 || turns[turns.length - 1].role !== "user") throw new Error("NO_QUESTION");
 
     const seen = new Map<Id<"places">, Doc<"places">>();
-    let plan: PlanOut | undefined;
     const remember = (docs: Doc<"places">[]) => docs.forEach((d) => seen.set(d._id, d));
 
     const focus = focusPlaceId ? await ctx.runQuery(api.places.get, { id: focusPlaceId }) : null;
@@ -270,33 +246,6 @@ export const chat = action({
             note: "Road time without traffic; allow extra in the city.",
           };
         }
-        case "create_plan": {
-          const days = Math.min(5, Math.max(1, Number(args.days) || 2));
-          const interests = (Array.isArray(args.interests) ? args.interests : [])
-            .map(String)
-            .filter((c) => c in CATEGORIES && CATEGORIES[c as Category].group === "explore");
-          const prefs: Prefs = {
-            days,
-            budget: (["shoestring", "comfort", "splurge"].includes(String(args.budget)) ? args.budget : "comfort") as Prefs["budget"],
-            interests: interests.length ? interests : ["heritage", "attraction", "food"],
-            groupSize: Math.min(12, Math.max(1, Number(args.group_size) || 2)),
-            pace: (["relaxed", "balanced", "packed"].includes(String(args.pace)) ? args.pace : "balanced") as Prefs["pace"],
-            includeDayTrips: typeof args.include_day_trips === "boolean" ? args.include_day_trips : days >= 2,
-            ...(typeof args.start_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(args.start_date) ? { startDate: args.start_date } : {}),
-          };
-          const result = await ctx.runQuery(api.planner.preview, { citySlug: citySlug ?? "sambhajinagar", prefs });
-          plan = { ...result, prefs };
-          return {
-            title: result.title,
-            cost_inr_estimate: result.estCostInr,
-            days: result.days.map((d) => ({
-              day: d.day,
-              title: d.title,
-              stops: d.stops.map((s) => `${s.start} ${s.name}${s.note ? ` (${s.note})` : ""}`),
-            })),
-            note: "The user sees this plan as a card with an 'Open in planner' button. Summarise it briefly, do not repeat every stop.",
-          };
-        }
         default:
           return { error: `unknown tool ${name}` };
       }
@@ -358,6 +307,6 @@ export const chat = action({
       .slice(0, 6)
       .map(({ p }) => toCard(p));
 
-    return { reply, places, ...(plan ? { plan } : {}) };
+    return { reply, places };
   },
 });

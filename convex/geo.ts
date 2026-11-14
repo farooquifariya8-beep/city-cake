@@ -88,15 +88,86 @@ export const idsForOsm = internalQuery({
   },
 });
 
+type NominatimHit = {
+  osm_type: "node" | "way" | "relation";
+  osm_id: number;
+  lat: string;
+  lon: string;
+  name?: string;
+  category: string;
+  type: string;
+  address?: Record<string, string>;
+};
+
+/**
+ * Nominatim (OSM's own geocoder): the fallback when Photon is down, and the
+ * source for hotels, food and fuel in a small box. Policy: at most one request
+ * a second, a real User-Agent, no autocomplete. Callers keep to that.
+ */
+export async function nominatimSearch(
+  text: string,
+  centre: { lat: number; lng: number },
+  opts: { boxKm?: number; limit?: number } = {},
+): Promise<GeoResult[]> {
+  const params = new URLSearchParams({
+    q: text,
+    format: "jsonv2",
+    countrycodes: "in",
+    addressdetails: "1",
+    limit: String(opts.limit ?? 10),
+    "accept-language": "en",
+  });
+  if (opts.boxKm) {
+    const dLat = opts.boxKm / 111;
+    const dLng = opts.boxKm / (111 * Math.cos((centre.lat * Math.PI) / 180));
+    params.set("viewbox", [centre.lng - dLng, centre.lat + dLat, centre.lng + dLng, centre.lat - dLat].join(","));
+    params.set("bounded", "1");
+  }
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+    headers: { "User-Agent": UA },
+    signal: AbortSignal.timeout(9000),
+  });
+  if (!res.ok) throw new Error(`nominatim ${res.status}`);
+  const hits = (await res.json()) as NominatimHit[];
+  const seen = new Set<string>();
+  const out: GeoResult[] = [];
+  for (const h of hits) {
+    const name = h.name || undefined;
+    if (!name) continue;
+    const lat = Number(h.lat);
+    const lng = Number(h.lon);
+    const el: OsmElement = { type: h.osm_type, id: h.osm_id, lat, lon: lng, tags: { [h.category]: h.type, name } };
+    const row = elementToPlace(el, "india");
+    const osmId = `${h.osm_type}/${h.osm_id}`;
+    if (seen.has(osmId)) continue;
+    seen.add(osmId);
+    const a = h.address ?? {};
+    const address = [a.road, a.suburb ?? a.neighbourhood, a.city ?? a.town ?? a.village ?? a.county, a.state].filter(Boolean).join(", ");
+    out.push({
+      osmId,
+      name,
+      category: (row?.category as Category | undefined) ?? "attraction",
+      lat,
+      lng,
+      address: address || undefined,
+      distanceKm: Math.round(haversineM(centre.lat, centre.lng, lat, lng) / 100) / 10,
+    });
+  }
+  return out;
+}
+
 export async function photonSearch(
   text: string,
   centre: { lat: number; lng: number },
   limit = 10,
+  opts: { osmTag?: string; local?: boolean } = {},
 ): Promise<GeoResult[]> {
+  const bias = opts.local ? "&location_bias_scale=1&zoom=14" : "&location_bias_scale=0.6&zoom=11";
   const url =
     `${PHOTON}?q=${encodeURIComponent(text)}&limit=${limit}&lang=en` +
-    `&lat=${centre.lat}&lon=${centre.lng}&location_bias_scale=0.6&zoom=11&bbox=${INDIA_BBOX}`;
-  const res = await fetch(url, { headers: { "User-Agent": UA } });
+    `&lat=${centre.lat}&lon=${centre.lng}${bias}&bbox=${INDIA_BBOX}` +
+    (opts.osmTag ? `&osm_tag=${encodeURIComponent(opts.osmTag)}` : "");
+  const res = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(9000) });
   if (!res.ok) return [];
   const data = (await res.json()) as { features?: PhotonFeature[] };
   const seen = new Set<string>();
@@ -116,7 +187,12 @@ export const search = action({
     const q = text.trim();
     if (q.length < 2) return [];
     const centre = { lat: lat ?? HOME.lat, lng: lng ?? HOME.lng };
-    const results = await photonSearch(q, centre);
+    let results: GeoResult[];
+    try {
+      results = await photonSearch(q, centre);
+    } catch {
+      results = await nominatimSearch(q, centre).catch(() => []);
+    }
     const ids: Record<string, Id<"places">> = await ctx.runQuery(internal.geo.idsForOsm, {
       osmIds: results.map((r) => r.osmId),
     });

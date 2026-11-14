@@ -89,6 +89,12 @@ export default defineSchema({
     durationS: v.number(),
   }).index("by_key", ["key"]),
 
+  // Places along a road route, from trips.alongRoute. Expires after a week.
+  corridorCache: defineTable({
+    key: v.string(),
+    stops: v.any(),
+  }).index("by_key", ["key"]),
+
   favorites: defineTable({
     userId: v.id("users"),
     placeId: v.id("places"),

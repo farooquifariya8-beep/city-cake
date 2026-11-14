@@ -23,9 +23,11 @@ import type * as lib_curatedImages from "../lib/curatedImages.js";
 import type * as lib_landmarks from "../lib/landmarks.js";
 import type * as lib_osm from "../lib/osm.js";
 import type * as lib_planner from "../lib/planner.js";
+import type * as lib_routeTrip from "../lib/routeTrip.js";
 import type * as places from "../places.js";
 import type * as planner from "../planner.js";
 import type * as routes from "../routes.js";
+import type * as trips from "../trips.js";
 import type * as users from "../users.js";
 
 import type {
@@ -50,9 +52,11 @@ declare const fullApi: ApiFromModules<{
   "lib/landmarks": typeof lib_landmarks;
   "lib/osm": typeof lib_osm;
   "lib/planner": typeof lib_planner;
+  "lib/routeTrip": typeof lib_routeTrip;
   places: typeof places;
   planner: typeof planner;
   routes: typeof routes;
+  trips: typeof trips;
   users: typeof users;
 }>;
 

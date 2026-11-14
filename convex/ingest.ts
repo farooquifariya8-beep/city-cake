@@ -215,7 +215,7 @@ type EnrichSummary = {
 };
 
 /** POST to each Overpass endpoint in turn until one answers with JSON. */
-async function overpass(query: string): Promise<{ elements?: OsmElement[] }> {
+export async function overpass(query: string, timeoutMs = OVERPASS_TIMEOUT_MS): Promise<{ elements?: OsmElement[] }> {
   const errors: string[] = [];
   for (const url of OVERPASS_URLS) {
     try {
@@ -223,7 +223,7 @@ async function overpass(query: string): Promise<{ elements?: OsmElement[] }> {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "data=" + encodeURIComponent(query),
-        signal: AbortSignal.timeout(OVERPASS_TIMEOUT_MS),
+        signal: AbortSignal.timeout(timeoutMs),
       });
       if (!res.ok) {
         errors.push(`${new URL(url).host} ${res.status}: ${(await res.text()).slice(0, 120)}`);
