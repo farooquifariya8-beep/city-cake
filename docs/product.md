@@ -11,7 +11,7 @@ A visitor arriving in Chhatrapati Sambhajinagar for two to four days. They know 
 | Explore the city: heritage, sights, museums, temples, food, cafes, shopping, parks, stays | `/explore`, `/explore/[city]`, `/place/[id]` | yes |
 | Find nearby facilities: hospitals, pharmacies, ATMs, transport, fuel, toilets, police | `/nearby` | yes |
 | See places on a map and draw a route between selected places | `/map` | yes |
-| Build a trip by hand (any place, custom stops), or get a suggested plan from budget, interests, days, group size and pace | `/plan` | yes, saving needs an account |
+| Plan a road trip: start, destination and days, pick sights, food, stays and fuel along the road, get the days planned; or build a trip by hand | `/plan` | yes, saving needs an account |
 | Ask the travel assistant (Groq, grounded in our places) | chat popup on map pages | yes |
 | Save favourite places and itineraries | `/saved` | no |
 | Create an account and sign in | `/signup`, `/signin` | n/a |
@@ -22,7 +22,19 @@ A visitor arriving in Chhatrapati Sambhajinagar for two to four days. They know 
 
 ## Planner behaviour (rule-based)
 
-Inputs: days (1 to 5), budget (shoestring, comfort, splurge), interests (category keys), group size (1 to 12), pace (relaxed, balanced, packed), optional start time, and whether to include day trips.
+### Road trips on `/plan`
+
+`/plan` opens a three-step flow in the map sheet. One primary button per step.
+
+1. **Where to?** A start (defaults to My location; when location is off the user types a place), a destination, both searched across India with `geo.search` (600 ms debounce, three letters minimum), and a days stepper (1 to 7, default 2). "Find places on the way" moves on. Two one-tap examples: Pune to Chhatrapati Sambhajinagar, and Chhatrapati Sambhajinagar to Ajanta Caves.
+2. **Pick your stops.** A summary (from, to, km, drive time, days), category chips (All, Sights, Food, Stays, Fuel, Parks, Shopping, built from category keys) and the places from `trips.alongRoute`, ordered along the road, each showing "km 34 · 0.8 km off road". Tapping a row or its map pin toggles it; picked stops show as numbered pins. When days > 1, stays near where each night falls are marked "Good for night n", as a hint only. The road line comes from `routes.get` right away while the places load (a new road takes about half a minute, then it's cached). A sticky bar reads "4 stops picked · Make my plan".
+3. **Your trip.** `planRouteTrip` (`convex/lib/routeTrip.ts`, run in the browser) puts the picks in route order, splits days near an even share of drive and visit time, prefers to end a day at a picked stay, and loads the result into the builder. The user edits times, reorders and saves there. "Back to stops" keeps the picks.
+
+From, to, days, the start the search ran from and the picked keys live in `localStorage` (`citycake:road-trip`), so a refresh keeps the step. "Build it yourself" opens the builder directly for planning by hand.
+
+### City planner (`planner.preview`)
+
+Not shown in the UI right now; kept for an LLM or a later screen. Inputs: days (1 to 5), budget (shoestring, comfort, splurge), interests (category keys), group size (1 to 12), pace (relaxed, balanced, packed), optional start time, and whether to include day trips.
 
 Output: a title, one entry per day with ordered stops, each with a start time, a duration, travel minutes from the previous stop and a short note, plus a rough cost in INR for the whole group.
 

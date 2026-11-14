@@ -46,7 +46,7 @@ Mutations that need an account throw `NOT_SIGNED_IN`. The UI checks `useConvexAu
 | `/place/[id]` | map shell, client sheet | photo, facts, save, directions from the visitor or the city centre, facilities within 2 km, more to see |
 | `/nearby` | map shell, client sheet | geolocation with city-centre fallback, or a place's point (`?lat=&lng=&from=`); facility chips, radius, route here |
 | `/map` | map shell, client sheet | route builder: `?stops=id,id` (2 to 10), `?mode=foot`, `?city=`, `?cat=` |
-| `/plan` | map shell, client sheet | trip builder: days, stops (search, map pin, place page, custom stop), reorder, times; Suggest a plan fills it from `planner.preview`; draft in localStorage; save or update |
+| `/plan` | map shell, client sheet | road trip flow (`plan-flow.tsx`): where to (`geo.search`, `useMyLocation`, days), pick stops (`routes.get` line first, then `trips.alongRoute`; chips, night hints, pin taps toggle), then `planRouteTrip` in the browser fills the builder (days, stops, reorder, times, save or update). Wizard state in `citycake:road-trip`, draft in `citycake:plan-draft`. "Build it yourself" opens the builder alone |
 | `/assistant` | redirect | to `/explore?chat=1`. The assistant is a corner chat on every map page (full-screen sheet on phones) calling `assistant.chat` with the city and the focused place |
 | `/saved` | content shell, client, protected | saved places and trips (rename, delete, open) |
 | `/saved/[id]` | content shell, client, protected | one saved itinerary |
