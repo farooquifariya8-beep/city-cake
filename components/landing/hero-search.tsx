@@ -15,7 +15,7 @@ export function HeroSearch() {
         const text = q.trim();
         router.push(text ? `/explore?q=${encodeURIComponent(text)}` : "/explore");
       }}
-      className="flex h-14 w-full max-w-[520px] items-center gap-2 rounded-full bg-surface pr-2 pl-5 shadow-[0_8px_32px_rgb(0_0_0/0.10)] ring-1 ring-hairline focus-within:ring-2 focus-within:ring-[var(--route)]"
+      className="flex h-14 w-full max-w-[520px] items-center gap-2 rounded-full bg-white pr-2 pl-5 shadow-[0_12px_40px_-8px_rgb(60_40_10/0.22)] ring-1 ring-black/5 transition-shadow duration-200 focus-within:ring-2 focus-within:ring-[var(--route)]"
     >
       <Search className="size-[18px] shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden />
       <label htmlFor="hero-q" className="sr-only">

@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Car,
-  MapPin,
-  Navigation,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { LogoMark } from "@/components/shell/logo";
 import { CategoryTile } from "@/components/category/category-chip";
 import { NumberTicker } from "@/components/motion/number-ticker";
 import { HeroSearch } from "@/components/landing/hero-search";
-import { getLandingData, type TownCard } from "@/components/landing/data";
-import { cn } from "@/lib/utils";
+import { HeroCollage } from "@/components/landing/hero-collage";
+import { TripsRail } from "@/components/landing/trips-rail";
+import { Features, type FeatureItem } from "@/components/landing/features";
+import { PlanFigure } from "@/components/landing/plan-figure";
+import { DistanceChart } from "@/components/landing/distance-chart";
+import { NavLinks } from "@/components/landing/nav-links";
+import { Reveal, SmoothScroll } from "@/components/landing/motion";
+import { ChatMock, NearbyMock, PlanMock, RouteMock, SearchMock } from "@/components/landing/mocks";
+import { getLandingData } from "@/components/landing/data";
 
 export const metadata: Metadata = {
   title: "City Cake: a guide to Chhatrapati Sambhajinagar, Ellora and Ajanta",
@@ -27,206 +27,277 @@ const QUICK = [
   { label: "ATMs", href: "/nearby?cat=atm", cat: "atm" },
 ];
 
+const STEPS = [
+  ["All the places in town", "Every place in the guide is ranked. The planner starts at the top of the list."],
+  ["A few, nearest first", "Relaxed, balanced or packed picks 3, 4 or 6 stops. Each next stop is the closest one left."],
+  [
+    "Timed into a day",
+    "Time at each stop, the drive between them, lunch after 12:30, and a warning if a site is shut that weekday.",
+  ],
+] as const;
+
+const COUNT_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+const rise = (ms: number) => ({ "--d": `${ms}ms` }) as React.CSSProperties;
+
+const kicker = "text-[13px] font-medium tracking-[0.08em] text-[oklch(0.5_0.1_70)] uppercase";
+const sectionTitle = "mt-2 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance md:text-[44px]";
+
 export default async function Home() {
   const { towns, places, facilities } = await getLandingData();
   const home = towns.find((t) => t.kind === "home") ?? towns[0];
   const ellora = towns.find((t) => t.slug === "ellora");
   const daulatabad = towns.find((t) => t.slug === "daulatabad");
-  const trips = towns.filter((t) => t.kind === "daytrip");
+  const trips = towns.filter((t) => t.kind === "daytrip").sort((a, b) => a.distanceKm - b.distanceKm);
+
+  const features: FeatureItem[] = [
+    {
+      key: "search",
+      tint: "oklch(0.93 0.035 262)",
+      kicker: "Search",
+      title: "Look up any place in India",
+      body: "Places in this guide come first. Anything else, from a wada in Pune to a ghat in Varanasi, comes from OpenStreetMap and opens on the same map.",
+      href: "/explore",
+      cta: "Search the map",
+      preview: <SearchMock />,
+    },
+    {
+      key: "plan",
+      tint: "oklch(0.93 0.05 75)",
+      kicker: "Planner",
+      title: "A plan for each day",
+      body: "Pick how many days and how busy. You get a timed day per town with lunch in the middle, and you can move, swap or add stops.",
+      href: "/plan",
+      cta: "Plan a trip",
+      preview: <PlanMock />,
+    },
+    {
+      key: "nearby",
+      tint: "oklch(0.93 0.04 160)",
+      kicker: "Nearby",
+      title: "The closest pharmacy, ATM or bus stand",
+      body: "Share your location, or pick a town. Hospitals, pharmacies, ATMs, fuel and toilets, sorted by how far they are.",
+      href: "/nearby",
+      cta: "See what is near",
+      preview: <NearbyMock />,
+    },
+    {
+      key: "assistant",
+      tint: "oklch(0.93 0.035 350)",
+      kicker: "Assistant",
+      title: "Ask before you set out",
+      body: "The assistant runs on an open model through Groq. It checks places, opening days and road times in this guide before it answers, and can turn a chat into a plan.",
+      href: "/assistant",
+      cta: "Ask a question",
+      preview: <ChatMock />,
+    },
+    {
+      key: "routes",
+      tint: "oklch(0.93 0.035 205)",
+      kicker: "Routes",
+      title: "Routes over the terrain",
+      body: "Pick your stops, switch between driving and walking, and follow the road over a 3D map of the Deccan hills.",
+      href: "/map",
+      cta: "Open the 3D map",
+      preview: <RouteMock ellora={ellora} />,
+    },
+  ];
 
   return (
-    <div className="flex min-h-full flex-col overflow-x-clip bg-background">
+    <div className="landing flex min-h-full flex-col overflow-x-clip text-[var(--lp-ink)]">
+      <SmoothScroll />
       <Nav />
 
       {/* Hero */}
-      <section className="mx-auto grid w-full max-w-[1240px] items-center gap-12 px-5 pt-8 pb-16 md:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:pt-16 lg:pb-24">
-        <div>
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-[13px] text-muted-foreground ring-1 ring-hairline">
-            <MapPin className="size-3.5 text-[var(--route)]" strokeWidth={2} aria-hidden />
-            City guide for Maharashtra&apos;s Deccan
-          </p>
-          <h1 className="mt-5 text-[40px] leading-[1.04] font-semibold tracking-[-0.03em] text-balance sm:text-[56px] lg:text-[64px]">
-            Find your way around Chhatrapati Sambhajinagar
-          </h1>
-          <p className="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-pretty text-muted-foreground">
-            Places to see, the nearest pharmacy, routes on a map and a plan for each day. For the city and
-            its day trips to Ellora, Daulatabad and Ajanta.
-          </p>
-          <div className="mt-8">
-            <HeroSearch />
+      <section className="relative isolate -mt-16 pt-16">
+        <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+          <div className="lp-mesh">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {QUICK.map((q) => (
-              <Link
-                key={q.href}
-                href={q.href}
-                className="press inline-flex h-9 items-center gap-2 rounded-full bg-surface pr-3.5 pl-1.5 text-[14px] ring-1 ring-hairline transition-colors hover:bg-accent"
-              >
-                <CategoryTile category={q.cat} size="sm" className="size-6 rounded-full" />
-                {q.label}
-              </Link>
-            ))}
-          </div>
+          <div className="lp-grain" />
         </div>
 
-        <HeroCollage home={home} ellora={ellora} daulatabad={daulatabad} />
-      </section>
-
-      {/* Numbers */}
-      <section className="border-y border-hairline bg-surface">
-        <dl className="mx-auto grid w-full max-w-[1240px] grid-cols-2 gap-y-6 px-5 py-8 md:grid-cols-4 md:px-8">
-          <Stat value={places} label="places to see" />
-          <Stat value={facilities} label="hospitals, ATMs, pharmacies and more" />
-          <Stat value={towns.length} label="towns covered" />
-          <Stat value={0} label="sign-ups needed to browse" />
-        </dl>
-      </section>
-
-      {/* Day trips */}
-      <section className="mx-auto w-full max-w-[1240px] px-5 pt-20 md:px-8">
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <h2 className="text-[30px] leading-tight font-semibold tracking-[-0.02em] md:text-[38px]">
-              Day trips from the city
-            </h2>
-            <p className="mt-2 max-w-[52ch] text-[16px] text-muted-foreground">
-              Rock-cut caves, a hilltop fort and a meteorite crater, all within a few hours by road.
+        <div className="mx-auto grid w-full max-w-[1240px] items-center gap-14 px-5 pt-10 pb-20 md:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10 lg:pt-20 lg:pb-28">
+          <div className="min-w-0">
+            <p
+              className="lp-rise inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-[13px] text-foreground/70 ring-1 ring-black/5 backdrop-blur"
+              style={rise(0)}
+            >
+              <span className="size-1.5 rounded-full bg-[oklch(0.68_0.13_70)]" aria-hidden />
+              City guide for Maharashtra&apos;s Deccan
             </p>
+            <h1
+              className="lp-rise mt-6 text-[42px] leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-[60px] lg:text-[68px]"
+              style={rise(90)}
+            >
+              Find your way around Chhatrapati Sambhajinagar
+            </h1>
+            <p className="lp-rise mt-3 text-[18px] text-foreground/45 sm:text-[20px]" lang="mr" style={rise(160)}>
+              {home?.localName ?? "छत्रपती संभाजीनगर"}
+            </p>
+            <p
+              className="lp-rise mt-5 max-w-[46ch] text-[17px] leading-relaxed text-pretty text-foreground/70"
+              style={rise(220)}
+            >
+              Places to see, the nearest pharmacy, routes on a map and a plan for each day. For the city and its day
+              trips to Ellora, Daulatabad and Ajanta.
+            </p>
+            <div className="lp-rise mt-8" style={rise(320)}>
+              <HeroSearch />
+            </div>
+            <div className="lp-rise mt-4 flex flex-wrap gap-2" style={rise(400)}>
+              {QUICK.map((q) => (
+                <Link
+                  key={q.href}
+                  href={q.href}
+                  className="press inline-flex h-9 items-center gap-2 rounded-full bg-white/80 pr-3.5 pl-1.5 text-[14px] ring-1 ring-black/5 backdrop-blur hover:bg-white"
+                >
+                  <CategoryTile category={q.cat} size="sm" className="size-6 rounded-full" />
+                  {q.label}
+                </Link>
+              ))}
+            </div>
           </div>
-          <Link
-            href="/explore"
-            className="hidden shrink-0 items-center gap-1 text-[15px] font-medium text-[var(--route)] sm:inline-flex"
-          >
-            See all places <ArrowRight className="size-4" aria-hidden />
-          </Link>
+
+          <HeroCollage home={home} ellora={ellora} daulatabad={daulatabad} />
         </div>
-        <ul className="fade-x -mx-5 mt-8 flex snap-x gap-4 overflow-x-auto px-5 pb-2 md:-mx-8 md:px-8">
-          {trips.map((t) => (
-            <li key={t.slug} className="w-[260px] shrink-0 snap-start sm:w-[280px]">
-              <TripCard town={t} />
-            </li>
-          ))}
-        </ul>
       </section>
+
+      {/* Numbers and distances */}
+      <section className="mx-auto w-full max-w-[1240px] px-5 pt-8 md:px-8 md:pt-16">
+        <div className="grid gap-10 rounded-[28px] bg-white/70 p-6 ring-1 ring-black/5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-14 md:p-10">
+          <div>
+            <Reveal>
+              <h2 className="max-w-[18ch] text-[28px] leading-[1.08] font-semibold tracking-[-0.025em] text-balance md:text-[36px]">
+                One city, {COUNT_WORDS[trips.length] ?? trips.length} day trips, every pharmacy on the way
+              </h2>
+            </Reveal>
+            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-7">
+              <Stat value={places} label="places to see" delay={0.05} />
+              <Stat value={facilities} label="hospitals, ATMs, pharmacies and more" delay={0.12} />
+              <Stat value={towns.length} label="towns covered" delay={0.19} />
+              <Stat value={0} label="sign-ups needed to browse" delay={0.26} />
+            </dl>
+          </div>
+          <Reveal delay={0.1} className="self-center">
+            <DistanceChart trips={trips} />
+          </Reveal>
+        </div>
+      </section>
+
+      <TripsRail trips={trips} />
 
       {/* Features */}
-      <section className="mx-auto w-full max-w-[1240px] px-5 pt-24 md:px-8">
-        <h2 className="max-w-[20ch] text-[30px] leading-tight font-semibold tracking-[-0.02em] text-balance md:text-[38px]">
-          Everything for the trip in one place
-        </h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-6">
-          <Feature
-            className="md:col-span-4"
-            href="/plan"
-            title="Plan your days"
-            body="Build each day yourself from any place in India, or start from a suggested plan and change it."
-          >
-            <PlanMock />
-          </Feature>
-          <Feature
-            className="md:col-span-2"
-            href="/nearby"
-            title="What's near you"
-            body="The closest hospital, pharmacy, ATM or bus stand, sorted by distance."
-          >
-            <NearbyMock />
-          </Feature>
-          <Feature
-            className="md:col-span-3"
-            href="/explore?chat=1"
-            title="Ask the assistant"
-            body="It looks up places, opening days and real road times before it answers."
-          >
-            <ChatMock />
-          </Feature>
-          <Feature
-            className="md:col-span-3"
-            href="/map"
-            title="Routes on a 3D map"
-            body="Pick stops, switch between driving and walking, and see the route over the terrain."
-          >
-            <RouteMock ellora={ellora} />
-          </Feature>
+      <section aria-labelledby="features-title" className="pt-24 md:pt-28">
+        <div className="mx-auto w-full max-w-[1240px] px-5 md:px-8">
+          <Reveal>
+            <p className={kicker}>What it does</p>
+            <h2 id="features-title" className={`${sectionTitle} max-w-[20ch]`}>
+              Everything for the trip, on one map
+            </h2>
+          </Reveal>
+        </div>
+        <div className="mt-6 md:mt-0">
+          <Features items={features} />
+        </div>
+      </section>
+
+      {/* How a day gets planned */}
+      <section aria-labelledby="how-title" className="mx-auto w-full max-w-[1240px] px-5 pt-16 md:px-8 md:pt-24">
+        <div className="grid items-center gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-16">
+          <div>
+            <Reveal>
+              <p className={kicker}>How a day gets planned</p>
+              <h2 id="how-title" className={`${sectionTitle} max-w-[18ch]`}>
+                Simple rules you can check
+              </h2>
+            </Reveal>
+            <ol className="mt-8 space-y-6">
+              {STEPS.map(([title, body], i) => (
+                <Reveal key={title} as="li" delay={0.08 * i} className="flex gap-4">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[13px] font-semibold tabular-nums ring-1 ring-black/10">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="text-[17px] font-semibold tracking-[-0.01em]">{title}</h3>
+                    <p className="mt-1 max-w-[46ch] text-[15px] leading-relaxed text-pretty text-foreground/65">{body}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+          <PlanFigure />
         </div>
       </section>
 
       {/* Closing */}
-      <section className="mx-auto w-full max-w-[1240px] px-5 py-24 md:px-8">
-        <div className="relative isolate overflow-hidden rounded-[28px] bg-[oklch(0.22_0.01_260)] text-white">
-          {ellora?.photo && (
-            <Image
-              src={ellora.photo.url}
-              alt=""
-              fill
-              sizes="(min-width: 1240px) 1240px, 100vw"
-              className="-z-10 object-cover opacity-55"
-            />
-          )}
-          <div className="-z-10 absolute inset-0 bg-[linear-gradient(90deg,rgb(0_0_0/0.72),rgb(0_0_0/0.15))]" />
-          <div className="max-w-[560px] px-7 py-14 md:px-12 md:py-20">
-            <h2 className="text-[32px] leading-tight font-semibold tracking-[-0.02em] text-balance md:text-[44px]">
-              Open the map and start with what&apos;s close
-            </h2>
-            <p className="mt-3 text-[16px] text-white/80">
-              No account needed. Sign up only when you want to save places and plans.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/explore"
-                className="press inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-[15px] font-medium text-black"
-              >
-                Open the map <ArrowRight className="size-4" aria-hidden />
-              </Link>
-              <Link
-                href="/plan"
-                className="press inline-flex h-11 items-center rounded-full px-5 text-[15px] font-medium text-white ring-1 ring-white/40 hover:bg-white/10"
-              >
-                Plan a trip
-              </Link>
+      <section className="mx-auto w-full max-w-[1240px] px-5 py-24 md:px-8 md:py-32">
+        <Reveal y={40}>
+          <div className="relative isolate overflow-hidden rounded-[32px] bg-[oklch(0.25_0.02_60)] text-white">
+            {ellora?.photo && (
+              <Image
+                src={ellora.photo.url}
+                alt=""
+                fill
+                sizes="640px"
+                className="-z-10 object-cover opacity-60"
+              />
+            )}
+            <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(20_12_4/0.78),rgb(20_12_4/0.2))]" />
+            <div className="max-w-[580px] px-7 py-16 md:px-14 md:py-24">
+              <h2 className="text-[34px] leading-[1.05] font-semibold tracking-[-0.03em] text-balance md:text-[48px]">
+                Open the map and start with what&apos;s close
+              </h2>
+              <p className="mt-4 text-[16.5px] text-white/80">
+                No account needed. Sign up only when you want to save places and plans.
+              </p>
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link
+                  href="/explore"
+                  className="press group inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-[15px] font-medium text-black"
+                >
+                  Open the map
+                  <ArrowRight
+                    className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
+                <Link
+                  href="/plan"
+                  className="press inline-flex h-12 items-center rounded-full px-6 text-[15px] font-medium text-white ring-1 ring-white/40 hover:bg-white/10"
+                >
+                  Plan a trip
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      <footer className="border-t border-hairline">
-        <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-3 px-5 py-8 text-[13px] text-muted-foreground md:flex-row md:items-center md:justify-between md:px-8">
-          <span className="flex items-center gap-2">
-            <LogoMark className="size-6 rounded-md" /> City Cake, a college project
-          </span>
-          <span>Map data © OpenStreetMap contributors. Photos from Wikimedia Commons. Routes by OSRM.</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
 
 function Nav() {
   return (
-    <header className="sticky top-0 z-30 border-b border-transparent bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 bg-[color-mix(in_oklch,var(--lp-cream)_72%,transparent)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 md:px-8">
         <Link href="/" className="flex items-center gap-2 text-[16px] font-semibold tracking-[-0.01em]">
           <LogoMark />
           City Cake
         </Link>
-        <nav className="flex items-center gap-1 text-[14px]">
-          {[
-            ["Explore", "/explore"],
-            ["Nearby", "/nearby"],
-            ["Plan", "/plan"],
-          ].map(([label, href]) => (
-            <Link
-              key={href}
-              href={href}
-              className="hidden h-9 items-center rounded-full px-3 text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
-            >
-              {label}
-            </Link>
-          ))}
+        <nav className="flex items-center gap-1" aria-label="Main">
+          <NavLinks />
           <Link
             href="/explore"
-            className="press ml-2 inline-flex h-9 items-center gap-1.5 rounded-full bg-foreground px-4 font-medium text-background"
+            className="press ml-2 inline-flex h-9 items-center gap-1.5 rounded-full bg-[var(--lp-ink)] px-4 text-[14px] font-medium text-white"
           >
-            Open the app
+            Open the map
           </Link>
         </nav>
       </div>
@@ -234,249 +305,50 @@ function Nav() {
   );
 }
 
-function HeroCollage({ home, ellora, daulatabad }: { home?: TownCard; ellora?: TownCard; daulatabad?: TownCard }) {
+function Stat({ value, label, delay }: { value: number; label: string; delay: number }) {
   return (
-    <div className="relative mx-auto grid w-full max-w-[560px] grid-cols-[1.25fr_1fr] gap-3 lg:max-w-none">
-      <Photo town={home} className="row-span-2 aspect-[3/4]" sizes="(min-width: 1024px) 340px, 55vw" priority />
-      <Photo town={ellora} className="aspect-[4/3.4]" sizes="(min-width: 1024px) 270px, 45vw" />
-      <Photo town={daulatabad} className="aspect-[4/3.4]" sizes="(min-width: 1024px) 270px, 45vw" />
-
-      {/* A map pin card, the way the app shows a selected place. */}
-      <div className="absolute top-6 -left-3 flex items-center gap-2.5 rounded-2xl bg-surface/95 py-2 pr-4 pl-2 shadow-[0_8px_32px_rgb(0_0_0/0.14)] ring-1 ring-hairline backdrop-blur sm:-left-6">
-        <span className="flex size-7 items-center justify-center rounded-full bg-[var(--route)] text-white">
-          <MapPin className="size-3.5" strokeWidth={2.25} aria-hidden />
-        </span>
-        <div className="leading-tight">
-          <p className="text-[14px] font-semibold">{home?.photo?.placeName ?? "Bibi Ka Maqbara"}</p>
-          <p className="text-[12px] text-muted-foreground">Chhatrapati Sambhajinagar</p>
-        </div>
-      </div>
-
-      {/* A route card. */}
-      <div className="absolute -bottom-5 left-6 flex items-center gap-3 rounded-2xl bg-surface/95 px-3.5 py-2.5 shadow-[0_8px_32px_rgb(0_0_0/0.14)] ring-1 ring-hairline backdrop-blur sm:left-12">
-        <span className="flex size-8 items-center justify-center rounded-full bg-[var(--route)] text-white">
-          <Car className="size-4" strokeWidth={2} aria-hidden />
-        </span>
-        <div className="leading-tight">
-          <p className="text-[14px] font-semibold tabular-nums">To Ellora Caves</p>
-          <p className="text-[12px] text-muted-foreground tabular-nums">29 km by road</p>
-        </div>
-      </div>
-
-      {/* A chat bubble. */}
-      <div className="absolute -right-2 bottom-[38%] max-w-[210px] rounded-[18px] rounded-br-md bg-[var(--route)] px-3.5 py-2 text-[13.5px] leading-snug text-white shadow-[0_8px_32px_rgb(0_0_0/0.14)] sm:-right-5">
-        Is Ellora open on Tuesday?
-      </div>
-    </div>
-  );
-}
-
-function Photo({
-  town,
-  className,
-  sizes,
-  priority,
-}: {
-  town?: TownCard;
-  className?: string;
-  sizes: string;
-  priority?: boolean;
-}) {
-  return (
-    <div className={cn("relative overflow-hidden rounded-[24px] bg-surface-raised ring-1 ring-black/5 ring-inset", className)}>
-      {town?.photo ? (
-        <Image
-          src={town.photo.url}
-          alt={`${town.photo.placeName}, ${town.name}`}
-          fill
-          sizes={sizes}
-          priority={priority}
-          className="object-cover"
-        />
-      ) : null}
-      {town && (
-        <span className="absolute bottom-3 left-3 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
-          {town.name}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function Stat({ value, label }: { value: number; label: string }) {
-  return (
-    <div>
+    <Reveal delay={delay}>
       <dt className="sr-only">{label}</dt>
-      <dd className="text-[34px] leading-none font-semibold tracking-[-0.02em] tabular-nums md:text-[40px]">
+      <dd className="text-[36px] leading-none font-semibold tracking-[-0.03em] tabular-nums md:text-[44px]">
         <NumberTicker value={value} startOnView locale="en-IN" />
       </dd>
-      <dd className="mt-2 max-w-[22ch] text-[14px] text-muted-foreground">{label}</dd>
-    </div>
+      <dd className="mt-2 max-w-[22ch] text-[14px] leading-snug text-foreground/60">{label}</dd>
+    </Reveal>
   );
 }
 
-function TripCard({ town }: { town: TownCard }) {
-  return (
-    <Link href={`/explore?city=${town.slug}`} className="group block">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-surface-raised ring-1 ring-black/5 ring-inset">
-        {town.photo ? (
-          <Image
-            src={town.photo.url}
-            alt={`${town.photo.placeName}, ${town.name}`}
-            fill
-            sizes="280px"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <CategoryTile category="attraction" size="lg" />
-          </div>
-        )}
-        <span className="absolute top-3 left-3 rounded-full bg-surface/95 px-2.5 py-1 text-[12px] font-medium tabular-nums shadow-sm">
-          {town.distanceKm} km
-        </span>
-      </div>
-      <div className="mt-3 flex items-baseline justify-between gap-2">
-        <h3 className="text-[17px] font-semibold tracking-[-0.01em]">{town.name}</h3>
-        <span className="text-[13px] text-muted-foreground" lang="mr">
-          {town.localName}
-        </span>
-      </div>
-      <p className="mt-1 text-[14px] leading-snug text-muted-foreground">{town.blurb}</p>
-    </Link>
-  );
-}
+const FOOTER_LINKS = [
+  ["Explore", "/explore"],
+  ["Nearby", "/nearby"],
+  ["Plan a trip", "/plan"],
+  ["Assistant", "/assistant"],
+  ["3D map", "/map"],
+  ["Saved", "/saved"],
+] as const;
 
-function Feature({
-  title,
-  body,
-  href,
-  className,
-  children,
-}: {
-  title: string;
-  body: string;
-  href: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
+function Footer() {
   return (
-    <Link
-      href={href}
-      className={cn(
-        "group flex flex-col overflow-hidden rounded-[24px] bg-surface ring-1 ring-hairline transition-colors hover:ring-black/15",
-        className,
-      )}
-    >
-      <div className="flex items-start justify-between gap-4 p-6 pb-0">
+    <footer className="border-t border-black/[0.06]">
+      <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-5 py-12 text-[14px] md:grid-cols-[1.4fr_1fr_1fr] md:px-8">
         <div>
-          <h3 className="text-[20px] font-semibold tracking-[-0.01em]">{title}</h3>
-          <p className="mt-1.5 max-w-[44ch] text-[15px] leading-relaxed text-muted-foreground">{body}</p>
-        </div>
-        <ArrowUpRight
-          className="size-5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground"
-          strokeWidth={1.75}
-          aria-hidden
-        />
-      </div>
-      <div className="mt-6 flex flex-1 items-end px-6">{children}</div>
-    </Link>
-  );
-}
-
-const PLAN_SAMPLE = [
-  { t: "09:00", name: "Soneri Mahal", cat: "heritage", d: "1 h 30" },
-  { t: "10:35", name: "Aurangabad Caves", cat: "heritage", d: "1 h 30" },
-  { t: "12:15", name: "Bhadkal Gate", cat: "heritage", d: "1 h 30" },
-  { t: "13:50", name: "Great Sagar Restaurant", cat: "food", d: "1 h" },
-];
-
-function PlanMock() {
-  return (
-    <div className="w-full rounded-t-[18px] bg-background p-4 pb-2 ring-1 ring-hairline">
-      <div className="mb-3 flex gap-1.5 text-[12px] font-medium">
-        <span className="rounded-full bg-foreground px-3 py-1 text-background">Day 1</span>
-        <span className="rounded-full px-3 py-1 text-muted-foreground ring-1 ring-hairline">Day 2 · Ellora</span>
-      </div>
-      <ol className="space-y-1.5">
-        {PLAN_SAMPLE.map((s) => (
-          <li key={s.name} className="flex items-center gap-3 rounded-xl bg-surface px-3 py-2 ring-1 ring-hairline">
-            <span className="w-11 text-[13px] font-medium tabular-nums">{s.t}</span>
-            <CategoryTile category={s.cat} size="sm" />
-            <span className="min-w-0 flex-1 truncate text-[14px]">{s.name}</span>
-            <span className="text-[12px] text-muted-foreground tabular-nums">{s.d}</span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-const NEARBY_SAMPLE = [
-  { name: "Govt Medical College & Hospital", cat: "hospital", m: "410 m" },
-  { name: "HDFC ATM", cat: "atm", m: "530 m" },
-  { name: "Bank of Maharashtra", cat: "atm", m: "600 m" },
-];
-
-function NearbyMock() {
-  return (
-    <div className="w-full divide-y divide-hairline rounded-t-[18px] bg-background ring-1 ring-hairline">
-      {NEARBY_SAMPLE.map((n) => (
-        <div key={n.name} className="flex items-center gap-3 px-3 py-2.5">
-          <CategoryTile category={n.cat} size="sm" />
-          <span className="min-w-0 flex-1 truncate text-[14px]">{n.name}</span>
-          <span className="text-[12px] text-muted-foreground tabular-nums">{n.m}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ChatMock() {
-  return (
-    <div className="w-full space-y-2 rounded-t-[18px] bg-background p-4 ring-1 ring-hairline">
-      <p className="ml-auto w-fit max-w-[80%] rounded-[18px] rounded-br-md bg-[var(--route)] px-3.5 py-2 text-[14px] text-white">
-        Where can I eat near Bibi Ka Maqbara?
-      </p>
-      <p className="w-fit max-w-[88%] rounded-[18px] rounded-bl-md bg-surface px-3.5 py-2 text-[14px] leading-snug ring-1 ring-hairline">
-        Great Sagar Restaurant, Alankar and Naaz tea stall are all within about 2 km.
-      </p>
-      <p className="flex items-center gap-1.5 pt-1 text-[12px] text-muted-foreground">
-        <Sparkles className="size-3.5" aria-hidden /> Checked against the places in this guide
-      </p>
-    </div>
-  );
-}
-
-function RouteMock({ ellora }: { ellora?: TownCard }) {
-  return (
-    <div className="relative h-[190px] w-full overflow-hidden rounded-t-[18px] bg-[oklch(0.95_0.02_120)] ring-1 ring-hairline dark:bg-[oklch(0.3_0.02_140)]">
-      <svg viewBox="0 0 400 190" className="absolute inset-0 h-full w-full" aria-hidden>
-        <path d="M0 140 C80 120 120 160 200 130 S330 70 400 90" stroke="oklch(0.88 0.03 90)" strokeWidth="14" fill="none" />
-        <path d="M40 30 C120 60 160 40 220 80 S330 150 390 170" stroke="oklch(0.9 0.02 90)" strokeWidth="9" fill="none" />
-        <path
-          d="M70 150 C120 110 150 120 190 100 S280 60 330 50"
-          stroke="var(--route)"
-          strokeWidth="5"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <circle cx="70" cy="150" r="8" fill="white" stroke="var(--route)" strokeWidth="4" />
-      </svg>
-      <span className="absolute top-[22px] left-[78%] flex size-9 -translate-x-1/2 items-center justify-center rounded-full bg-[oklch(0.62_0.13_70)] text-white ring-[3px] ring-white">
-        <Navigation className="size-4" strokeWidth={2} aria-hidden />
-      </span>
-      <div className="absolute right-3 bottom-3 left-3 flex items-center gap-3 rounded-2xl bg-surface/95 px-3 py-2 shadow-sm ring-1 ring-hairline">
-        {ellora?.photo ? (
-          <span className="relative size-9 shrink-0 overflow-hidden rounded-lg">
-            <Image src={ellora.photo.url} alt="" fill sizes="36px" className="object-cover" />
+          <span className="flex items-center gap-2 text-[16px] font-semibold">
+            <LogoMark className="size-7 rounded-lg" /> City Cake
           </span>
-        ) : null}
-        <div className="min-w-0 flex-1 leading-tight">
-          <p className="truncate text-[14px] font-semibold">City centre to Ellora Caves</p>
-          <p className="text-[12px] text-muted-foreground tabular-nums">29 km · driving</p>
+          <p className="mt-3 max-w-[36ch] text-foreground/60">
+            A city guide for Chhatrapati Sambhajinagar and its day trips. A college project.
+          </p>
         </div>
+        <nav aria-label="Footer" className="grid grid-cols-2 content-start gap-2 text-foreground/70">
+          {FOOTER_LINKS.map(([label, href]) => (
+            <Link key={href} href={href} className="w-fit transition-colors hover:text-foreground">
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <p className="text-[13px] leading-relaxed text-foreground/55">
+          Map data © OpenStreetMap contributors. Photos from Wikimedia Commons. Routes by OSRM.
+        </p>
       </div>
-    </div>
+    </footer>
   );
 }
