@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import { ConvexAuthNextjsServerProvider } from "@/lib/convexAuth";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { categoryStylesheet } from "@/lib/category-style";
+import { AppThemeProvider } from "@/components/landing/theme-provider";
 import "./globals.css";
 
 const CATEGORY_CSS = categoryStylesheet();
@@ -43,14 +43,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <style dangerouslySetInnerHTML={{ __html: CATEGORY_CSS }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <Suspense>
+        {/* The theme provider reads the pathname to keep "/" light, so it sits inside Suspense. */}
+        <Suspense>
+          <AppThemeProvider>
             <ConvexAuthNextjsServerProvider>
               <TooltipProvider>{children}</TooltipProvider>
             </ConvexAuthNextjsServerProvider>
-          </Suspense>
-          <Toaster position="top-center" />
-        </ThemeProvider>
+            <Toaster position="top-center" />
+          </AppThemeProvider>
+        </Suspense>
       </body>
     </html>
   );
