@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/core": "0.41.1",
     "@convex-dev/auth": "^2.0.0",
+    "@phosphor-icons/react": "^2.1.10",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
     "cn": "^0.5.2",

@@ -50,6 +50,20 @@
 
   --shadow-float: 0 8px 32px rgb(0 0 0 / 0.12), 0 0 0 1px var(--hairline);
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
+  --button-secondary-hover: var(--button-secondary-hover);
+  --button-secondary: var(--button-secondary);
+  --button-shadow: var(--button-shadow);
+  --color-button-edge: var(--button-edge);
+  --color-button-foreground: var(--button-foreground);
+  --button-hover: var(--button-hover);
+  --button: var(--button);
+  --color-warning: var(--warning);
+  --color-negative: var(--negative);
+  --color-positive: var(--positive);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand: var(--brand);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-inset: var(--surface-inset);
 }
 
 :root {
@@ -79,6 +93,20 @@
   --warn: oklch(0.5 0.12 65);
   --warn-soft: oklch(0.96 0.04 85);
   --route: #2f6fde;
+  --surface-inset: oklch(1 0 0);
+  --surface-raised: oklch(0.912 0.003 286);
+  --brand: #0071e3;
+  --brand-foreground: #ffffff;
+  --positive: #248a3d;
+  --negative: #d70015;
+  --warning: #c93400;
+  --button: linear-gradient(0deg, #fff 0%, #e6e6e6 100%);
+  --button-hover: linear-gradient(0deg, #fff 0%, #eeeeee 100%);
+  --button-foreground: #111111;
+  --button-edge: rgba(0, 0, 0, 0.1);
+  --button-shadow: 0 0 #0000;
+  --button-secondary: linear-gradient(180deg, #e2e2e2 0%, #ececec 100%);
+  --button-secondary-hover: linear-gradient(180deg, #dadada 0%, #e4e4e4 100%);
 }
 
 .dark {
@@ -107,6 +135,20 @@
   --warn: oklch(0.82 0.11 80);
   --warn-soft: oklch(0.3 0.04 75);
   --route: #5b93f0;
+  --surface-inset: oklch(0.172 0 0);
+  --surface-raised: oklch(0.265 0 0);
+  --brand: #0a84ff;
+  --brand-foreground: #ffffff;
+  --positive: #30d158;
+  --negative: #ff453a;
+  --warning: #ff9f0a;
+  --button: linear-gradient(0deg, #fff 0%, #ababab 100%);
+  --button-hover: linear-gradient(0deg, #fff 0%, #c2c2c2 100%);
+  --button-foreground: #111111;
+  --button-edge: rgba(255, 255, 255, 0.5);
+  --button-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+  --button-secondary: linear-gradient(180deg, #1d1d1d 0%, #262626 100%);
+  --button-secondary-hover: linear-gradient(180deg, #242424 0%, #2d2d2d 100%);
 }
 
 @layer base {
