@@ -17,6 +17,7 @@ import type * as ingest from "../ingest.js";
 import type * as itineraries from "../itineraries.js";
 import type * as lib_categories from "../lib/categories.js";
 import type * as lib_cities from "../lib/cities.js";
+import type * as lib_commons from "../lib/commons.js";
 import type * as lib_curatedImages from "../lib/curatedImages.js";
 import type * as lib_landmarks from "../lib/landmarks.js";
 import type * as lib_osm from "../lib/osm.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   itineraries: typeof itineraries;
   "lib/categories": typeof lib_categories;
   "lib/cities": typeof lib_cities;
+  "lib/commons": typeof lib_commons;
   "lib/curatedImages": typeof lib_curatedImages;
   "lib/landmarks": typeof lib_landmarks;
   "lib/osm": typeof lib_osm;

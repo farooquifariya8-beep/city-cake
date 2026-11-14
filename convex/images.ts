@@ -2,6 +2,7 @@ import { internalAction, internalMutation, internalQuery } from "./_generated/se
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { CURATED_IMAGES } from "./lib/curatedImages";
+import { normaliseCommonsUrl } from "./lib/commons";
 import type { Doc, Id } from "./_generated/dataModel";
 
 const UA = "CityCake/0.1 (college project)";
@@ -114,5 +115,28 @@ export const backfillCommons = internalAction({
     }
     console.log(`backfillCommons ${citySlug}: ${found} of ${list.length}`);
     return { checked: list.length, found };
+  },
+});
+
+/** Rewrite Special:FilePath and thumb.wikimedia.org links to upload.wikimedia.org thumbnails. */
+export const normaliseUrls = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    let changed = 0;
+    for (const city of await ctx.db.query("cities").collect()) {
+      const rows = await ctx.db
+        .query("places")
+        .withIndex("by_city_group_score", (q) => q.eq("citySlug", city.slug).eq("group", "explore"))
+        .collect();
+      for (const p of rows) {
+        if (!p.image) continue;
+        const next = normaliseCommonsUrl(p.image);
+        if (next !== p.image) {
+          await ctx.db.patch(p._id, { image: next });
+          changed++;
+        }
+      }
+    }
+    return { changed };
   },
 });

@@ -14,6 +14,7 @@ import type { Id } from "./_generated/dataModel";
 import { CITIES } from "./lib/cities";
 import { isLandmark } from "./lib/landmarks";
 import { buildOverpassQuery, elementsToPlaces, IMAGE_BONUS, type OsmElement } from "./lib/osm";
+import { commonsThumb } from "./lib/commons";
 
 const USER_AGENT = "CityCake/0.1 (college project)";
 // overpass-api.de is the documented endpoint, but it refuses connections from
@@ -323,9 +324,7 @@ async function wikidataEntity(q: string): Promise<{ enTitle?: string; p18?: stri
 }
 
 function commonsImage(file: string): string {
-  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
-    file.replace(/ /g, "_"),
-  )}?width=800`;
+  return commonsThumb(file);
 }
 
 function trimSummary(text: string | undefined): string | undefined {

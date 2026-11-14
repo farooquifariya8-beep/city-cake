@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "thumb.wikimedia.org", pathname: "/wikipedia/**", search: "" },
       { protocol: "https", hostname: "upload.wikimedia.org", pathname: "/wikipedia/**", search: "" },
+      { protocol: "https", hostname: "commons.wikimedia.org", pathname: "/wiki/**" },
+      // Curated Commons photos, sized with ?width=.
+      { protocol: "https", hostname: "commons.wikimedia.org", pathname: "/wiki/Special:FilePath/**" },
     ],
   },
   turbopack: {
