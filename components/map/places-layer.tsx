@@ -76,7 +76,7 @@ export function PlacesLayer({
       filter: ["has", "point_count"],
       layout: {
         "text-field": "{point_count_abbreviated}",
-        "text-font": ["Open Sans Semibold"],
+        "text-font": ["Montserrat SemiBold", "Open Sans Bold"],
         "text-size": 12,
         "text-allow-overlap": true,
       },
