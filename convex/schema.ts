@@ -8,6 +8,7 @@ export const prefsValidator = v.object({
   groupSize: v.number(),
   pace: v.union(v.literal("relaxed"), v.literal("balanced"), v.literal("packed")),
   startTime: v.optional(v.string()), // "09:00"
+  startDate: v.optional(v.string()), // "2026-12-01", used for weekly closures
   includeDayTrips: v.optional(v.boolean()),
 });
 

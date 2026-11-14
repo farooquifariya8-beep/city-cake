@@ -4,9 +4,9 @@
 
 | Source | Used for | Endpoint | Policy we must keep |
 |---|---|---|---|
-| Overpass | places and facilities | `https://overpass-api.de/api/interpreter` (POST `data=`) | under 10,000 requests a day, back off on 429 and 504, not as a live backend |
+| Overpass | places and facilities | `https://overpass-api.de/api/interpreter` (POST `data=`), with `maps.mail.ru` as a mirror because Convex servers cannot reach overpass-api.de | under 10,000 requests a day, back off on 429 and 504, not as a live backend |
 | Nominatim | not used at runtime | n/a | the region is fixed, so we don't geocode |
-| OSRM demo | routes | `https://router.project-osrm.org/route/v1/{driving\|foot}/...` | 1 request a second, cache every result |
+| OSRM | routes | driving on `router.project-osrm.org`, walking on `routing.openstreetmap.de/routed-foot` (the demo foot profile returns car routes) | 1 request a second, cache every result |
 | Wikipedia REST | photo and summary | `https://en.wikipedia.org/api/rest_v1/page/summary/{title}` | descriptive User-Agent, cache |
 | Wikidata | photo when only `wikidata=` exists | `https://www.wikidata.org/wiki/Special:EntityData/{Q}.json` | same |
 | CARTO basemaps | map tiles | mapcn defaults (voyager light, dark-matter dark) | attribution stays visible |
