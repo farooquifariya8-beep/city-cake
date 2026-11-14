@@ -13,6 +13,7 @@ import type { PlaceCard } from "@/convex/places";
 import { CategoryChip, CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { CitySwitcher } from "@/components/explore/city-switcher";
+import { IndiaResults } from "@/components/place/india-results";
 import { FiltersPopover } from "@/components/shell/filters-popover";
 import { SearchField } from "@/components/shell/search-field";
 import { Segmented } from "@/components/shell/segmented";
@@ -244,6 +245,9 @@ export function RouteBuilder() {
             ))
           )}
         </Group>
+      ) : null}
+      {text.trim() ? (
+        <IndiaResults text={text} near={{ lat: city.lat, lng: city.lng }} onPick={(p) => addStop({ id: p._id, name: p.name })} />
       ) : (
         <>
           <div className="mt-3 flex items-center justify-between gap-2">

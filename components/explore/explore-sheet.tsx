@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { IndiaResults } from "@/components/place/india-results";
 import { useQuery } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarRange, ChevronRight, SearchX, WifiOff } from "lucide-react";
@@ -23,6 +25,7 @@ const PAGE = 24;
 
 export function ExploreSheet() {
   const { params, set } = useUrlState();
+  const router = useRouter();
   const citySlug = cityBySlug(params.get("city")).slug;
   const city = cityBySlug(citySlug);
   const cat = params.get("cat");
@@ -111,7 +114,7 @@ export function ExploreSheet() {
 
       <div className="mt-4 flex items-baseline justify-between">
         <h2 className="text-[17px] font-semibold tracking-tight">
-          {q ? `Results for "${q}"` : cat ? categoryLabel(cat) : "Places to see"}
+          {q ? "In this guide" : cat ? categoryLabel(cat) : "Places to see"}
         </h2>
         {results && (
           <span className="text-[13px] text-muted-foreground tabular-nums">
@@ -173,6 +176,10 @@ export function ExploreSheet() {
             </Button>
           )}
         </>
+      )}
+
+      {q && (
+        <IndiaResults text={q} near={{ lat: city.lat, lng: city.lng }} onPick={(p) => router.push(`/place/${p._id}`)} />
       )}
 
       <Link

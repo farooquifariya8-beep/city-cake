@@ -106,7 +106,7 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
   const params = useSearchParams();
   const [text, setText] = useState("");
   const [pending, setPending] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<false | string>(false);
   const end = useRef<HTMLDivElement>(null);
 
   const focusPlaceId = /^\/place\/([^/]+)/.exec(pathname)?.[1] as Id<"places"> | undefined;
@@ -126,8 +126,12 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
         focusPlaceId,
       });
       setThread([...messages, { role: "assistant", content: res.reply, places: res.places.slice(0, 6) }]);
-    } catch {
-      setFailed(true);
+    } catch (err) {
+      setFailed(
+        String((err as Error)?.message ?? err).includes("ASSISTANT_BUSY")
+          ? "The assistant is busy. Try again in a minute"
+          : "Couldn't reach the assistant. Try again",
+      );
     } finally {
       setPending(false);
     }
@@ -236,7 +240,7 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
             )}
             {failed && (
               <div role="alert" className="flex items-center justify-between gap-3 rounded-2xl bg-destructive/10 px-3.5 py-2.5 text-[14px] text-destructive">
-                Couldn&apos;t reach the assistant. Try again
+                {failed}
                 <button
                   type="button"
                   onClick={() => ask(thread)}

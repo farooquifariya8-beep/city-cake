@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { EXPLORE_CATEGORIES, FACILITY_CATEGORIES } from "@/convex/lib/categories";
+import { CITIES } from "@/convex/lib/cities";
 import { CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { toMapPoint, useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
@@ -32,7 +33,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistance } from "@/lib/format";
 import { addStop, useDraft } from "@/lib/plan-draft";
 import { photoFirst } from "@/lib/photo-first";
-import { boundsOfCoords, cityBySlug } from "@/lib/geo";
+import { boundsOfCoords, cityBySlug, HOME_CITY } from "@/lib/geo";
 import { useOrigin } from "@/lib/use-origin";
 import { useRoute, type Profile } from "@/lib/use-route";
 import { cn } from "@/lib/utils";
@@ -69,6 +70,7 @@ function Detail({ place }: { place: Doc<"places"> }) {
   const router = useRouter();
   const draft = useDraft();
   const city = cityBySlug(place.citySlug);
+  const inRegion = CITIES.some((c) => c.slug === place.citySlug);
   const { saved, onToggle } = useSavePlace(place._id, place.name);
   const { origin, locate } = useOrigin(city);
   const route = useRoute();
@@ -169,7 +171,7 @@ function Detail({ place }: { place: Doc<"places"> }) {
           <ChevronLeft className="size-5" strokeWidth={2.25} aria-hidden />
           Back
         </button>
-        <span className="text-[13px] text-muted-foreground">{city.name}</span>
+        {inRegion && <span className="text-[13px] text-muted-foreground">{city.name}</span>}
       </div>
 
       {place.image && (
@@ -238,7 +240,7 @@ function Detail({ place }: { place: Doc<"places"> }) {
             from={
               origin.status === "user"
                 ? "From your location"
-                : `From the centre of ${city.name}. ${origin.reason ?? ""}`
+                : `From the centre of ${(inRegion ? city : HOME_CITY).name}. ${origin.reason ?? ""}`
             }
           />
         </div>
@@ -279,7 +281,9 @@ function Detail({ place }: { place: Doc<"places"> }) {
           Array.from({ length: 3 }, (_, i) => <PlaceRowSkeleton key={i} />)
         ) : facilities.length === 0 ? (
           <p className="px-3 py-3 text-[14px] text-muted-foreground">
-            No hospitals, pharmacies, ATMs or transport are mapped within 2 km.
+            {inRegion
+              ? "No hospitals, pharmacies, ATMs or transport are mapped within 2 km."
+              : "No facilities in this guide near here."}
           </p>
         ) : (
           facilities.map((f) => (

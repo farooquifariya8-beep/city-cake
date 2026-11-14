@@ -11,6 +11,7 @@ import { api } from "@/convex/_generated/api";
 import { CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { toMapPoint, useMapClick, useMapPointClick, useMapScene, type MapPoint, type Scene } from "@/components/map/map-store";
+import { IndiaResults } from "@/components/place/india-results";
 import { PlaceImage } from "@/components/place/place-image";
 import { SearchField } from "@/components/shell/search-field";
 import { Group } from "@/components/shell/states";
@@ -318,6 +319,13 @@ export function PlanBuilder() {
             ))
           )}
         </Group>
+      )}
+      {text.trim() && (
+        <IndiaResults
+          text={text}
+          near={{ lat: city.lat, lng: city.lng }}
+          onPick={(p) => addPlace({ id: p._id, name: p.name, category: p.category, lat: p.lat, lng: p.lng })}
+        />
       )}
 
       {custom ? (
