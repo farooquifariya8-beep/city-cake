@@ -2,12 +2,17 @@
 
 import { useSyncExternalStore } from "react";
 import type { PlaceCard } from "@/convex/places";
+import type { Prefs, SavedDay } from "@/lib/plan-draft";
+
+export type ChatPlan = { title: string; days: SavedDay[]; estCostInr: number; prefs: Prefs };
 
 export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   /** Places the assistant returned with this reply. */
   places?: PlaceCard[];
+  /** A plan the assistant made with the planner tool. */
+  plan?: ChatPlan;
 };
 
 const KEY = "citycake:chat";

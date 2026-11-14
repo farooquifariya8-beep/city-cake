@@ -14,15 +14,59 @@ import { categoryLabel } from "@/components/category/category-icon";
 import { PlaceImage } from "@/components/place/place-image";
 import { SPRING } from "@/components/shell/segmented";
 import { cityBySlug } from "@/lib/geo";
-import { addStop, useDraft } from "@/lib/plan-draft";
+import { addStop, draftFromPlan, setDraft, useDraft } from "@/lib/plan-draft";
+import { useRouter } from "next/navigation";
+import { CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { setChatOpen, setThread, useChatOpen, useThread, type ChatMessage } from "./chat-store";
+import { setChatOpen, setThread, useChatOpen, useThread, type ChatMessage, type ChatPlan } from "./chat-store";
+
+function PlanCard({ plan, onOpen }: { plan: ChatPlan; onOpen?: () => void }) {
+  const router = useRouter();
+  const stops = plan.days.reduce((n, d) => n + d.stops.length, 0);
+  return (
+    <div className="max-w-[92%] overflow-hidden rounded-[20px] bg-surface ring-1 ring-hairline">
+      <div className="flex items-start gap-3 px-3.5 pt-3">
+        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-[var(--route)]/12 text-[var(--route)]">
+          <CalendarDays className="size-4" strokeWidth={1.75} aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[14.5px] leading-5 font-semibold">{plan.title}</p>
+          <p className="text-[12.5px] text-muted-foreground tabular-nums">
+            {plan.days.length} {plan.days.length === 1 ? "day" : "days"} · {stops} stops · about ₹{plan.estCostInr.toLocaleString("en-IN")}
+          </p>
+        </div>
+      </div>
+      <ol className="mt-2 space-y-1.5 px-3.5">
+        {plan.days.map((d) => (
+          <li key={d.day} className="text-[13px] leading-[1.35]">
+            <span className="font-medium">Day {d.day}</span>
+            <span className="text-muted-foreground"> · {d.stops.map((s) => s.name).join(", ")}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="p-3">
+        <button
+          type="button"
+          onClick={() => {
+            setDraft(draftFromPlan(plan));
+            onOpen?.();
+            router.push("/plan");
+          }}
+          className="press flex h-9 w-full items-center justify-center rounded-xl bg-[var(--route)] text-[14px] font-medium text-white"
+        >
+          Open in planner
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const SUGGESTIONS = [
   "What should I see in one day here?",
   "Is Ellora open on Tuesday?",
   "Where can I eat near Bibi Ka Maqbara?",
   "How long is the drive to Ajanta?",
+  "Plan 2 days for 3 friends who love history",
 ];
 
 
@@ -125,7 +169,7 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
         citySlug,
         focusPlaceId,
       });
-      setThread([...messages, { role: "assistant", content: res.reply, places: res.places.slice(0, 6) }]);
+      setThread([...messages, { role: "assistant", content: res.reply, places: res.places.slice(0, 6), ...(res.plan ? { plan: res.plan } : {}) }]);
     } catch (err) {
       setFailed(
         String((err as Error)?.message ?? err).includes("ASSISTANT_BUSY")
@@ -216,7 +260,8 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
                   <div className="max-w-[92%] rounded-[20px] rounded-bl-md bg-surface px-3.5 py-2 ring-1 ring-hairline">
                     <Markdown text={m.content} />
                   </div>
-                  {m.places && m.places.length > 0 && (
+                  {m.plan && <PlanCard plan={m.plan} onOpen={mobile ? onClose : undefined} />}
+                  {m.places && m.places.length > 0 && !m.plan && (
                     <div className="fade-x -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
                       {m.places.map((p) => (
                         <PlaceChip key={p._id} place={p} />
