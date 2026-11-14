@@ -13,6 +13,7 @@ import type { PlaceCard } from "@/convex/places";
 import { CategoryChip, CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { CitySwitcher } from "@/components/explore/city-switcher";
+import { FiltersPopover } from "@/components/shell/filters-popover";
 import { SearchField } from "@/components/shell/search-field";
 import { Segmented } from "@/components/shell/segmented";
 import { EmptyState, Group } from "@/components/shell/states";
@@ -246,17 +247,22 @@ export function RouteBuilder() {
         </Group>
       ) : (
         <>
-          <div className="scrollbar-none -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
-            <CategoryChip active={!cat} onClick={() => set({ cat: null })} label="All sights" />
-            {chips.map((c) => (
-              <CategoryChip key={c} category={c} active={cat === c} onClick={() => set({ cat: cat === c ? null : c })} />
-            ))}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <p className="text-[13px] text-muted-foreground tabular-nums">
+              {places === undefined
+                ? "Loading places"
+                : `${places.length} ${cat ? categoryLabel(cat).toLowerCase() : "sights"} on the map`}
+            </p>
+            <FiltersPopover label={cat ? categoryLabel(cat) : "Filter"} active={!!cat}>
+              <p className="mb-2 text-[13px] font-semibold text-muted-foreground">Show on the map</p>
+              <div className="flex flex-wrap gap-1.5">
+                <CategoryChip active={!cat} onClick={() => set({ cat: null })} label="All sights" />
+                {chips.map((c) => (
+                  <CategoryChip key={c} category={c} active={cat === c} onClick={() => set({ cat: cat === c ? null : c })} />
+                ))}
+              </div>
+            </FiltersPopover>
           </div>
-          <p className="mt-2 text-[13px] text-muted-foreground tabular-nums">
-            {places === undefined
-              ? "Loading places"
-              : `${places.length} ${cat ? categoryLabel(cat).toLowerCase() : "places"} on the map`}
-          </p>
           {places && places.length === 0 && (
             <EmptyState icon={RouteIcon} title="None mapped here">
               Try another category or city.

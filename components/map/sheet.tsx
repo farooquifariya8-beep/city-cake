@@ -130,7 +130,14 @@ export function MapSheet({ children }: { children: ReactNode }) {
           ref={scroller}
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(env(safe-area-inset-bottom),16px)]"
         >
-          {children}
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+          >
+            {children}
+          </motion.div>
         </div>
       </motion.section>
     </SheetContext.Provider>

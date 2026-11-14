@@ -39,18 +39,18 @@ Mutations that need an account throw `NOT_SIGNED_IN`. The UI checks `useConvexAu
 
 | Path | Rendering | Notes |
 |---|---|---|
-| `/` | server | landing: what the app is, the region, entry points |
-| `/explore` | server shell, client lists | region overview, city cards |
-| `/explore/[city]` | server shell, client lists | category tabs, place grid |
-| `/place/[id]` | server shell | detail, mini map, save, nearby facilities |
-| `/nearby` | client | geolocation with city-centre fallback, facility filters, list and map |
-| `/map` | client, map lazy loaded | filters, select places, route between them |
-| `/plan` | client | preferences form, generated plan, save |
-| `/assistant` | client | chat UI, not connected |
-| `/saved` | client, protected | favourites and itineraries |
-| `/signin`, `/signup` | client | username and password forms |
+| `/` | server | redirects to `/explore` |
+| `/explore` | map shell, client sheet | city switcher (`?city=`), category chips (`?cat=`), search (`?q=`), photo cards, clustered markers |
+| `/place/[id]` | map shell, client sheet | photo, facts, save, directions from the visitor or the city centre, facilities within 2 km, more to see |
+| `/nearby` | map shell, client sheet | geolocation with city-centre fallback, or a place's point (`?lat=&lng=&from=`); facility chips, radius, route here |
+| `/map` | map shell, client sheet | route builder: `?stops=id,id` (2 to 10), `?mode=foot`, `?city=`, `?cat=` |
+| `/plan` | content shell, client | preferences in the URL, live `planner.preview`, save (`?save=1` saves after sign-in) |
+| `/assistant` | content shell, client | chat UI, not connected: a labelled system note links to /plan and /map |
+| `/saved` | content shell, client, protected | saved places and trips (rename, delete, open) |
+| `/saved/[id]` | content shell, client, protected | one saved itinerary |
+| `/signin`, `/signup` | content shell, client | username and password, honour `?next=` |
 
-App pages share one shell (`app/(app)/layout.tsx`): a sidebar on desktop and a bottom bar on mobile. The landing page and auth pages sit outside it.
+Two shells. `app/(map)/layout.tsx` renders one persistent MapLibre map (`components/map/map-shell.tsx`) with a floating top control and a sheet (left panel on desktop, bottom sheet on mobile); pages set what the map shows through `components/map/map-store.tsx` (`useMapScene`, `useMapPointClick`). `app/(content)/layout.tsx` is a slim top bar and a centred column up to 1100 px. Both show the same five tabs (Explore, Nearby, Map, Plan, Saved), an assistant button and the account menu.
 
 ## Auth
 

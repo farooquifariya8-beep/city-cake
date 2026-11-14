@@ -16,6 +16,16 @@ Researched on 2026-11-14. Install registry components with `bunx shadcn@latest a
 | [anatomy](https://skills.wheresryan.sh/anatomy) | isometric SVG explainer figures | the planner explainer figure | skill, see docs/design.md |
 | ASCII Magic MCP | image to ASCII render | the landmark hero | MCP tools `stylize_image`, `create_upload` |
 
+## Installed
+
+| Component | From | Where |
+|---|---|---|
+| `components/ui/chat-thread.tsx`, `prompt-suggestions.tsx` (plus `surface`, `agent-avatar`, `action-button`, `tooltip-hint`, `lib/motion-tokens.ts`, extra tokens in `globals.css`) | TuffUI | `/assistant` |
+| `components/motion/number-ticker.tsx` (plus `lib/ease.ts`, `lib/i18n.tsx`) | beUI | plan cost, route distance |
+| `components/shell/theme-switcher.tsx` | chanhdai | account menu |
+
+Not used: flightcn (the route animation uses mapcn's own `RouteProgress`), beUI tabs and timeline (our segmented control and timeline already cover them).
+
 Skip: Kobra (free tier is personal-use only, and shadcn covers the same ground), reanimate (a dev-time skill that needs macOS or Linux).
 
 Keep `motion` as the only animation library. Don't add GSAP.

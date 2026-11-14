@@ -4,7 +4,8 @@ import { Car, Footprints, RotateCw, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { Segmented } from "@/components/shell/segmented";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistance, formatMinutes } from "@/lib/format";
+import { NumberTicker } from "@/components/motion/number-ticker";
+import { formatMinutes } from "@/lib/format";
 import type { Profile, RouteState } from "@/lib/use-route";
 
 export const PROFILE_OPTIONS = [
@@ -86,7 +87,7 @@ export function RouteSummary({
             <p className="text-[22px] leading-7 font-semibold tracking-tight tabular-nums">
               {formatMinutes(state.route.durationS / 60)}
               <span className="ml-2 text-[15px] font-normal text-muted-foreground">
-                {formatDistance(state.route.distanceM)}
+                <NumberTicker value={state.route.distanceM / 1000} decimals={1} suffix=" km" />
               </span>
             </p>
             {from && <p className="mt-0.5 text-[13px] text-muted-foreground">{from}</p>}

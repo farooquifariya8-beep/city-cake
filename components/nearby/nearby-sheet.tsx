@@ -10,6 +10,7 @@ import { categoryLabel } from "@/components/category/category-icon";
 import { useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
 import { RouteSummary } from "@/components/map/route-summary";
 import { PlaceRow, PlaceRowSkeleton } from "@/components/place/place-row";
+import { FiltersPopover } from "@/components/shell/filters-popover";
 import { Segmented } from "@/components/shell/segmented";
 import { EmptyState, Group } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
@@ -163,15 +164,18 @@ export function NearbySheet() {
 
       <div className="mt-3 flex items-center justify-between gap-3">
         <span className="text-[13px] text-muted-foreground tabular-nums">
-          {results ? `${results.length} within ${Number(radius) / 1000} km` : "Searching"}
+          {results ? `${results.length} ${results.length === 1 ? "result" : "results"}` : "Searching"}
         </span>
-        <Segmented
-          label="Search radius"
-          size="sm"
-          value={radius}
-          onChange={(r) => (clearRoute(), set({ r: r === "3000" ? null : r }))}
-          options={RADII.map((r) => ({ value: r, label: `${Number(r) / 1000} km` }))}
-        />
+        <FiltersPopover label={`Within ${Number(radius) / 1000} km`} icon={false}>
+          <p className="mb-2 text-[13px] font-semibold text-muted-foreground">Search radius</p>
+          <Segmented
+            label="Search radius"
+            value={radius}
+            onChange={(r) => (clearRoute(), set({ r: r === "3000" ? null : r }))}
+            options={RADII.map((r) => ({ value: r, label: `${Number(r) / 1000} km` }))}
+            className="w-full"
+          />
+        </FiltersPopover>
       </div>
 
       {target && (

@@ -32,6 +32,16 @@ Local character comes through colour, not decoration. Each category keeps its hu
 - **Copy:** say what the thing does, plain words, no exclamation marks, no "AI-powered".
 - **Contrast:** 4.5:1 for text in both themes.
 
+## Map styles
+
+A floating switcher on every map view: Standard, Satellite, 3D. The choice is kept in `localStorage` (`citycake:map-style`) and 3D is the default. All keyless, defined in `components/map/map-style.tsx`.
+
+- Standard: CARTO voyager (light) and dark-matter (dark).
+- Satellite: Esri World Imagery raster with the CARTO voyager labels raster on top. Attribution "Esri, Maxar, Earthstar Geographics".
+- 3D: OpenFreeMap liberty with its `building-3d` extrusions, terrain from AWS terrarium DEM tiles (exaggeration 1.3), sky and fog, and a 55 degree pitch that camera moves keep.
+
+Map controls: zoom, compass, locate and fullscreen on desktop, and a recenter button that returns to what the page is about. Routes draw themselves from start to end over about a second.
+
 ## Theme tokens
 
 `app/globals.css` holds the tokens. Category colours come from the hue in `categories.ts` through `lib/category-style.ts`. Light mode is the default and the priority. Dark mode must work but needn't be perfect.

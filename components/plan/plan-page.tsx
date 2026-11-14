@@ -15,7 +15,7 @@ import { Segmented } from "@/components/shell/segmented";
 import { EmptyState } from "@/components/shell/states";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatInr } from "@/lib/format";
+import { NumberTicker } from "@/components/motion/number-ticker";
 import { HOME_CITY } from "@/lib/geo";
 import { useUrlState } from "@/lib/use-url-state";
 import { cn } from "@/lib/utils";
@@ -145,24 +145,6 @@ export function PlanPage() {
               label="people"
             />
           </Row>
-          <Row label="Start time">
-            <input
-              type="time"
-              value={prefs.startTime}
-              onChange={(e) => set({ start: e.target.value || null })}
-              className="h-8 rounded-lg bg-black/[0.055] px-2 text-[14px] tabular-nums outline-none focus-visible:ring-3 focus-visible:ring-ring/40 dark:bg-white/10"
-              aria-label="Start time each day"
-            />
-          </Row>
-          <Row label="Start date" hint="For weekly closures">
-            <input
-              type="date"
-              value={prefs.startDate ?? ""}
-              onChange={(e) => set({ date: e.target.value || null })}
-              className="h-8 rounded-lg bg-black/[0.055] px-2 text-[14px] tabular-nums outline-none focus-visible:ring-3 focus-visible:ring-ring/40 dark:bg-white/10"
-              aria-label="Start date"
-            />
-          </Row>
           <Row label="Day trips" hint="Ellora, Ajanta and more">
             <Switch
               checked={prefs.includeDayTrips ?? true}
@@ -171,6 +153,35 @@ export function PlanPage() {
             />
           </Row>
         </div>
+        <details className="group mt-2 rounded-2xl bg-surface ring-1 ring-hairline" open={!!prefs.startDate || prefs.startTime !== "09:00" || undefined}>
+          <summary className="flex h-11 cursor-pointer list-none items-center justify-between px-3.5 text-[15px] [&::-webkit-details-marker]:hidden">
+            More options
+            <span className="text-[13px] text-muted-foreground tabular-nums">
+              {prefs.startTime}
+              {prefs.startDate ? ` · ${prefs.startDate}` : ""}
+            </span>
+          </summary>
+          <div className="divide-y divide-hairline border-t border-hairline">
+            <Row label="Start time">
+              <input
+                type="time"
+                value={prefs.startTime}
+                onChange={(e) => set({ start: e.target.value || null })}
+                className="h-8 rounded-lg bg-black/[0.055] px-2 text-[14px] tabular-nums outline-none focus-visible:ring-3 focus-visible:ring-ring/40 dark:bg-white/10"
+                aria-label="Start time each day"
+              />
+            </Row>
+            <Row label="Start date" hint="Checks weekly closures">
+              <input
+                type="date"
+                value={prefs.startDate ?? ""}
+                onChange={(e) => set({ date: e.target.value || null })}
+                className="h-8 rounded-lg bg-black/[0.055] px-2 text-[14px] tabular-nums outline-none focus-visible:ring-3 focus-visible:ring-ring/40 dark:bg-white/10"
+                aria-label="Start date"
+              />
+            </Row>
+          </div>
+        </details>
 
         <Field label="Budget">
           <Segmented
@@ -248,7 +259,7 @@ export function PlanPage() {
               <div>
                 <p className="text-[13px] text-muted-foreground">Rough cost for the group</p>
                 <p className="text-[22px] leading-7 font-semibold tracking-tight tabular-nums">
-                  {formatInr(plan.estCostInr)}
+                  <NumberTicker value={plan.estCostInr} prefix="₹" locale="en-IN" />
                 </p>
               </div>
               <p className="max-w-56 text-right text-[12px] leading-4 text-muted-foreground">

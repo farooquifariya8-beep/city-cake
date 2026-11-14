@@ -4,18 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useConvexAuth, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useTheme } from "next-themes";
-import {
-  CalendarRange,
-  Heart,
-  LogIn,
-  LogOut,
-  MessageCircle,
-  Moon,
-  Sun,
-  UserPlus,
-  UserRound,
-} from "lucide-react";
+import { LogIn, LogOut, UserPlus, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import {
@@ -27,13 +16,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ThemeSwitcher } from "./theme-switcher";
 
-/** The account button: pages without a home in the nav, theme, and sign in or out. */
+/** The account button: who is signed in, appearance, and sign in or out. */
 export function AppMenu({ className }: { className?: string }) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip");
   const { signOut } = useAuthActions();
-  const { resolvedTheme, setTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -54,7 +43,7 @@ export function AppMenu({ className }: { className?: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={username ? `Account menu for ${username}` : "Menu and sign in"}
+        aria-label={username ? `Account menu for ${username}` : "Account and appearance"}
         className={cn(
           "press inline-flex size-9 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
           isAuthenticated && username
@@ -70,45 +59,19 @@ export function AppMenu({ className }: { className?: string }) {
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-60 rounded-2xl p-1.5">
-        {isAuthenticated && (
-          <>
-            <DropdownMenuLabel className="text-muted-foreground">
+        <DropdownMenuLabel className="text-muted-foreground">
+          {isAuthenticated ? (
+            <>
               Signed in as <span className="text-foreground">{username ?? "..."}</span>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        <DropdownMenuItem asChild>
-          <Link href="/plan">
-            <CalendarRange strokeWidth={1.75} aria-hidden />
-            Plan a trip
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/assistant">
-            <MessageCircle strokeWidth={1.75} aria-hidden />
-            Assistant
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/saved">
-            <Heart strokeWidth={1.75} aria-hidden />
-            Saved places and trips
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            setTheme(resolvedTheme === "dark" ? "light" : "dark");
-          }}
-        >
-          {resolvedTheme === "dark" ? (
-            <Sun strokeWidth={1.75} aria-hidden />
+            </>
           ) : (
-            <Moon strokeWidth={1.75} aria-hidden />
+            "Browsing without an account"
           )}
-          {resolvedTheme === "dark" ? "Light appearance" : "Dark appearance"}
-        </DropdownMenuItem>
+        </DropdownMenuLabel>
+        <div className="flex items-center justify-between px-2 py-1.5 text-[14px]">
+          Appearance
+          <ThemeSwitcher />
+        </div>
         <DropdownMenuSeparator />
         {isLoading ? (
           <DropdownMenuItem disabled>Checking your account</DropdownMenuItem>

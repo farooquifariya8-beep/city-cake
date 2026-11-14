@@ -3,26 +3,26 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { Compass, LocateFixed, Route } from "lucide-react";
+import { CalendarRange, Compass, Heart, LocateFixed, Map as MapIcon, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppMenu } from "./app-menu";
 import { SPRING } from "./segmented";
 
 const TABS = [
   { href: "/explore", label: "Explore", icon: Compass, match: ["/explore", "/place"] },
   { href: "/nearby", label: "Nearby", icon: LocateFixed, match: ["/nearby"] },
-  { href: "/map", label: "Map", icon: Route, match: ["/map"] },
+  { href: "/map", label: "Map", icon: MapIcon, match: ["/map"] },
+  { href: "/plan", label: "Plan", icon: CalendarRange, match: ["/plan"] },
+  { href: "/saved", label: "Saved", icon: Heart, match: ["/saved"] },
 ] as const;
 
-/** The segmented nav between the three map views. */
+/** The five places to go, always visible, as an iOS-style tab strip. */
 export function NavTabs({ className }: { className?: string }) {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="Map views"
-      className={cn(
-        "flex items-center rounded-[12px] bg-black/[0.055] p-0.5 dark:bg-white/10",
-        className,
-      )}
+      aria-label="Main"
+      className={cn("flex items-center rounded-[14px] bg-black/[0.055] p-0.5 dark:bg-white/10", className)}
     >
       {TABS.map((t) => {
         const active = t.match.some((m) => pathname === m || pathname.startsWith(`${m}/`));
@@ -33,7 +33,7 @@ export function NavTabs({ className }: { className?: string }) {
             href={t.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              "relative flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] text-[11px] leading-none font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -41,14 +41,40 @@ export function NavTabs({ className }: { className?: string }) {
               <motion.span
                 layoutId="nav-thumb"
                 transition={SPRING}
-                className="absolute inset-0 rounded-[10px] bg-surface shadow-[0_1px_3px_rgb(0_0_0/0.12)] dark:bg-white/20"
+                className="absolute inset-0 rounded-[12px] bg-surface shadow-[0_1px_3px_rgb(0_0_0/0.12)] dark:bg-white/20"
               />
             )}
-            <Icon className="relative size-4" strokeWidth={1.75} aria-hidden />
+            <Icon className="relative size-[18px]" strokeWidth={active ? 2.1 : 1.75} aria-hidden />
             <span className="relative">{t.label}</span>
           </Link>
         );
       })}
     </nav>
+  );
+}
+
+/** Tabs, then the assistant and account buttons. Shared by both shells. */
+export function HeaderControls() {
+  const pathname = usePathname();
+  const onAssistant = pathname.startsWith("/assistant");
+  return (
+    <>
+      <NavTabs className="min-w-0 flex-1" />
+      <Link
+        href="/assistant"
+        aria-label="Assistant"
+        title="Assistant"
+        aria-current={onAssistant ? "page" : undefined}
+        className={cn(
+          "press inline-flex size-9 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+          onAssistant
+            ? "bg-[var(--route)] text-white"
+            : "bg-black/[0.055] text-foreground hover:bg-black/10 dark:bg-white/10",
+        )}
+      >
+        <MessageCircle className="size-[18px]" strokeWidth={1.75} aria-hidden />
+      </Link>
+      <AppMenu />
+    </>
   );
 }
