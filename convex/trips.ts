@@ -29,6 +29,7 @@ async function wikiNear(lat: number, lng: number): Promise<(GeoResult & { image?
       if (!p.coordinates?.[0]) return false;
       const t = p.title;
       if (/^(siege|battle|treaty|list|history) of/i.test(t)) return false;
+      if (/\b(1[0-9]|20)[0-9]{2}\b|violence|riot|attack|massacre|election|bombing|accident|protest/i.test(t)) return false;
       if (/(district|taluka|tehsil|village|railway station|junction|constituency|river|airport|road|highway|college|school|university|company|bank)/i.test(t)) return false;
       // Single-word titles are almost always towns; keep them only when they name a sight.
       return /\s/.test(t.replace(/,.*$/, "")) || /(fort|temple|caves?|lake|palace|museum|garden|mandir|masjid|dargah|ghat|falls)/i.test(t);
