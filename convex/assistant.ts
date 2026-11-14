@@ -20,6 +20,17 @@ const messageV = v.object({
   content: v.string(),
 });
 
+const tripV = v.object({
+  from: v.optional(v.string()),
+  to: v.optional(v.string()),
+  fromAt: v.optional(v.object({ lat: v.number(), lng: v.number() })),
+  toAt: v.optional(v.object({ lat: v.number(), lng: v.number() })),
+  days: v.number(),
+  stops: v.array(
+    v.object({ name: v.string(), day: v.number(), category: v.optional(v.string()), lat: v.optional(v.number()), lng: v.optional(v.number()) }),
+  ),
+});
+
 type Msg =
   | { role: "system" | "user"; content: string }
   | { role: "assistant"; content: string | null; tool_calls?: ToolCall[] }
@@ -158,8 +169,9 @@ export const chat = action({
     messages: v.array(messageV),
     citySlug: v.optional(v.string()),
     focusPlaceId: v.optional(v.id("places")),
+    trip: v.optional(tripV),
   },
-  handler: async (ctx, { messages, citySlug, focusPlaceId }): Promise<{ reply: string; places: PlaceCard[] }> => {
+  handler: async (ctx, { messages, citySlug, focusPlaceId, trip }): Promise<{ reply: string; places: PlaceCard[] }> => {
     const key = process.env.GROQ_API_KEY;
     if (!key) throw new Error("ASSISTANT_NOT_CONFIGURED");
     const turns = messages.slice(-MAX_TURNS).map((m) => ({ role: m.role, content: m.content.slice(0, MAX_CHARS) }));
@@ -171,9 +183,25 @@ export const chat = action({
     const focus = focusPlaceId ? await ctx.runQuery(api.places.get, { id: focusPlaceId }) : null;
     if (focus) remember([focus]);
 
+    const tripFrom = trip?.from?.slice(0, 80);
+    const tripTo = trip?.to?.slice(0, 80);
+    const tripStops = (trip?.stops ?? []).slice(0, 20).map((s) => ({ ...s, name: s.name.slice(0, 80) }));
+    // The trip's ends resolve like stops, so "the drive from Pune" uses the wizard's Pune.
+    const tripPoints = [
+      ...tripStops,
+      ...(tripFrom && trip?.fromAt ? [{ name: tripFrom, ...trip.fromAt }] : []),
+      ...(tripTo && trip?.toAt ? [{ name: tripTo, ...trip.toAt }] : []),
+    ];
+
     async function resolve(name: string | undefined): Promise<Point | null> {
       if (!name) return { name: CITIES[0].name, lat: CITIES[0].lat, lng: CITIES[0].lng };
-      const n = name.toLowerCase();
+      const n = name.toLowerCase().trim();
+      // A stop of the user's trip, named loosely ("Ahmednagar fort" for "Ahmednagar Fort").
+      const stop =
+        tripPoints.find((s) => s.name.toLowerCase() === n) ??
+        tripPoints.find((s) => n.length >= 4 && s.name.toLowerCase().includes(n));
+      if (stop?.lat !== undefined && stop.lng !== undefined) return { name: stop.name, lat: stop.lat, lng: stop.lng };
+      if (stop) name = stop.name;
       const town = CITIES.find((c) => n.includes(c.slug) || c.name.toLowerCase().includes(n) || n.includes(c.name.toLowerCase()));
       const inGuide: Doc<"places">[] = await ctx.runQuery(internal.assistant.findInGuide, { text: name });
       if (inGuide[0] && (!town || inGuide[0].name.toLowerCase().includes(n))) {
@@ -254,7 +282,14 @@ export const chat = action({
     const system =
       SYSTEM +
       (citySlug ? `\nThe user is browsing: ${CITIES.find((c) => c.slug === citySlug)?.name ?? citySlug}.` : "") +
-      (focus ? `\nThe user is looking at: ${focus.name}.` : "");
+      (focus ? `\nThe user is looking at: ${focus.name}.` : "") +
+      (trip
+        ? `\nThe user has planned a trip${tripFrom && tripTo ? ` from ${tripFrom} to ${tripTo}` : ""}, ${trip.days} day${trip.days === 1 ? "" : "s"}.` +
+          [...new Set(tripStops.map((s) => s.day))]
+            .map((d) => `\nDay ${d} stops, in order: ${tripStops.filter((s) => s.day === d).map((s) => s.name).join(", ")}.`)
+            .join("") +
+          "\nWhen the user says my trip, my stops, day 1, the first stop or similar, they mean these. Pass these exact names to the tools; travel_time knows where they are."
+        : "");
     const convo: Msg[] = [{ role: "system", content: system }, ...turns];
 
     let reply = "";

@@ -15,6 +15,7 @@ import { PlaceImage } from "@/components/place/place-image";
 import { SPRING } from "@/components/shell/segmented";
 import { cityBySlug } from "@/lib/geo";
 import { addStop, useDraft } from "@/lib/plan-draft";
+import { followUps, tripSuggestions, useTripContext } from "@/lib/trip-context";
 import { cn } from "@/lib/utils";
 import { setChatOpen, setThread, useChatOpen, useThread, type ChatMessage } from "./chat-store";
 
@@ -113,6 +114,11 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
 
   const focusPlaceId = /^\/place\/([^/]+)/.exec(pathname)?.[1] as Id<"places"> | undefined;
   const citySlug = cityBySlug(params.get("city")).slug;
+  const trip = useTripContext();
+  const suggestions = trip ? tripSuggestions(trip) : [];
+  const starters = suggestions.length >= 3 ? suggestions : SUGGESTIONS;
+  const last = thread[thread.length - 1];
+  const chips = !pending && !failed && last?.role === "assistant" ? followUps(last.places ?? [], trip) : [];
 
   useEffect(() => {
     end.current?.scrollIntoView({ block: "end", behavior: "smooth" });
@@ -126,6 +132,7 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
         messages: messages.map(({ role, content }) => ({ role, content })),
         citySlug,
         focusPlaceId,
+        trip: trip ?? undefined,
       });
       setThread([...messages, { role: "assistant", content: res.reply, places: res.places.slice(0, 6) }]);
     } catch (err) {
@@ -187,12 +194,16 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3">
         {thread.length === 0 ? (
           <div className="pt-6">
-            <p className="text-[20px] leading-tight font-semibold tracking-tight">Ask about the city</p>
+            <p className="text-[20px] leading-tight font-semibold tracking-tight">
+              {starters === suggestions ? "Ask about your trip" : "Ask about the city"}
+            </p>
             <p className="mt-1 text-[14px] text-muted-foreground">
-              Places, opening days, food nearby, how long things take.
+              {starters === suggestions
+                ? `The assistant knows your ${trip?.from && trip.to ? `trip from ${trip.from} to ${trip.to}` : "plan"} and its stops.`
+                : "Places, opening days, food nearby, how long things take."}
             </p>
             <div className="mt-4 flex flex-col items-start gap-2">
-              {SUGGESTIONS.map((s) => (
+              {starters.map((s) => (
                 <button
                   key={s}
                   type="button"
@@ -227,6 +238,20 @@ function Conversation({ onClose, mobile }: { onClose: () => void; mobile: boolea
                   )}
                 </div>
               ),
+            )}
+            {chips.length > 0 && (
+              <div className="flex flex-wrap gap-1.5" aria-label="Suggested follow-ups">
+                {chips.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => send(s)}
+                    className="press max-w-full rounded-full bg-surface px-3 py-1.5 text-left text-[13px] ring-1 ring-hairline hover:bg-accent"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             )}
             {pending && (
               <div className="flex w-fit items-center gap-1 rounded-[20px] rounded-bl-md bg-surface px-4 py-3 ring-1 ring-hairline" role="status" aria-label="The assistant is typing">
