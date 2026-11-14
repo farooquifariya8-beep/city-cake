@@ -7,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { FACILITY_CATEGORIES } from "@/convex/lib/categories";
 import { CategoryChip } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
-import { useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
+import { toMapPoint, useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
 import { RouteSummary } from "@/components/map/route-summary";
 import { PlaceRow, PlaceRowSkeleton } from "@/components/place/place-row";
 import { FiltersPopover } from "@/components/shell/filters-popover";
@@ -72,13 +72,7 @@ export function NearbySheet() {
 
   const routeCoords = route.state.status === "ready" ? route.state.route.coordinates : null;
   const scene = useMemo<Scene>(() => {
-    const points = (results ?? []).map((p) => ({
-      id: p._id,
-      name: p.name,
-      category: p.category,
-      lat: p.lat,
-      lng: p.lng,
-    }));
+    const points = (results ?? []).map(toMapPoint);
     return {
       points,
       selected: target,

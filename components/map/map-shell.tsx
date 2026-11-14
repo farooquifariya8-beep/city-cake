@@ -11,7 +11,7 @@ import { Segmented } from "@/components/shell/segmented";
 import { HOME_CITY, type LngLat } from "@/lib/geo";
 import { CameraController, RecenterButton } from "./camera";
 import { MapStoreProvider, useHighlight, useMapActions, useScene } from "./map-store";
-import { Map3D, MAP_STYLES, STYLE_OPTIONS, useMapStyle } from "./map-style";
+import { Map3D, MAP_FONTS, MAP_STYLES, STYLE_OPTIONS, useMapStyle } from "./map-style";
 import { HoverPin, OriginPin, SelectedPin, StopPin } from "./pins";
 import { PlacesLayer } from "./places-layer";
 import { MapSheet } from "./sheet";
@@ -83,7 +83,7 @@ function MapCanvas() {
       className="absolute inset-0"
     >
       <Map3D mode={mode} />
-      <PlacesLayer points={scene.points} onPointClick={onPointClick} onHover={setHighlight} />
+      <PlacesLayer points={scene.points} font={MAP_FONTS[mode]} onImagery={mode === "satellite"} onPointClick={onPointClick} onHover={setHighlight} />
       {scene.route && scene.route.length > 1 && <AnimatedRoute coordinates={scene.route} />}
       {scene.origin && <OriginPin origin={scene.origin} />}
       {scene.stops?.map((s, i) => (

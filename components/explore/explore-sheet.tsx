@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { EXPLORE_CATEGORIES } from "@/convex/lib/categories";
 import { CategoryChip } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
-import { useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
+import { toMapPoint, useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
 import { PlaceCard, PlaceCardSkeleton } from "@/components/place/place-card";
 import { SearchField } from "@/components/shell/search-field";
 import { EmptyState } from "@/components/shell/states";
@@ -54,13 +54,7 @@ export function ExploreSheet() {
 
   const scene = useMemo<Scene>(
     () => ({
-      points: (results ?? []).map((p) => ({
-        id: p._id,
-        name: p.name,
-        category: p.category,
-        lat: p.lat,
-        lng: p.lng,
-      })),
+      points: (results ?? []).map(toMapPoint),
       camera: results
         ? {
             key: `explore:${citySlug}:${cat}:${q}:${results.length > 0}`,

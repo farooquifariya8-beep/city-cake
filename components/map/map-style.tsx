@@ -48,6 +48,13 @@ export const MAP_STYLES: Record<MapStyleMode, { light: string | MapLibreGL.Style
   "3d": { light: LIBERTY, dark: LIBERTY },
 };
 
+/** Glyph fonts each basemap serves, for pin labels. */
+export const MAP_FONTS: Record<MapStyleMode, string[]> = {
+  standard: ["Montserrat SemiBold", "Open Sans Bold"],
+  satellite: ["Noto Sans Bold"],
+  "3d": ["Noto Sans Bold"],
+};
+
 export const STYLE_OPTIONS = [
   { value: "standard" as const, label: <><MapIcon className="size-3.5" aria-hidden /><span className="hidden sm:inline">Standard</span></>, title: "Street map" },
   { value: "satellite" as const, label: <><Satellite className="size-3.5" aria-hidden /><span className="hidden sm:inline">Satellite</span></>, title: "Satellite imagery" },

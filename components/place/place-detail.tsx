@@ -22,7 +22,7 @@ import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { EXPLORE_CATEGORIES, FACILITY_CATEGORIES } from "@/convex/lib/categories";
 import { CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
-import { useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
+import { toMapPoint, useHighlight, useMapActions, useMapScene, type Scene } from "@/components/map/map-store";
 import { RouteSummary } from "@/components/map/route-summary";
 import { useSheet } from "@/components/map/sheet";
 import { EmptyState, Group } from "@/components/shell/states";
@@ -106,20 +106,8 @@ function Detail({ place }: { place: Doc<"places"> }) {
   const routeCoords = route.state.status === "ready" ? route.state.route.coordinates : null;
 
   const scene = useMemo<Scene>(() => {
-    const point = {
-      id: place._id,
-      name: place.name,
-      category: place.category,
-      lat: place.lat,
-      lng: place.lng,
-    };
-    const others = [...(facilities ?? []), ...(nearbySights ?? [])].map((p) => ({
-      id: p._id,
-      name: p.name,
-      category: p.category,
-      lat: p.lat,
-      lng: p.lng,
-    }));
+    const point = toMapPoint(place);
+    const others = [...(facilities ?? []), ...(nearbySights ?? [])].map(toMapPoint);
     return {
       points: others,
       selected: point,

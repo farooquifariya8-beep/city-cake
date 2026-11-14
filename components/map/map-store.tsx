@@ -11,7 +11,28 @@ import {
 import type { Bounds, LngLat } from "@/lib/geo";
 
 /** Anything the map can draw as a place. */
-export type MapPoint = { id: string; name: string; category: string; lat: number; lng: number };
+export type MapPoint = {
+  id: string;
+  name: string;
+  category: string;
+  lat: number;
+  lng: number;
+  score?: number;
+  image?: string;
+};
+
+/** A place card or row as a map point. */
+export function toMapPoint(p: {
+  _id: string;
+  name: string;
+  category: string;
+  lat: number;
+  lng: number;
+  score?: number;
+  image?: string;
+}): MapPoint {
+  return { id: p._id, name: p.name, category: p.category, lat: p.lat, lng: p.lng, score: p.score, image: p.image };
+}
 
 /** A camera move. The map moves only when `key` changes. */
 export type Camera = {

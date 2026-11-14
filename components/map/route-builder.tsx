@@ -22,7 +22,7 @@ import { formatDistance, formatMinutes } from "@/lib/format";
 import { boundsOf, boundsOfCoords, cityBySlug } from "@/lib/geo";
 import { useRoute, type Profile } from "@/lib/use-route";
 import { useUrlState } from "@/lib/use-url-state";
-import { useMapPointClick, useMapScene, type MapPoint, type Scene } from "./map-store";
+import { toMapPoint, useMapPointClick, useMapScene, type MapPoint, type Scene } from "./map-store";
 import { PROFILE_OPTIONS } from "./route-summary";
 
 const MAX_STOPS = 10;
@@ -95,10 +95,9 @@ export function RouteBuilder() {
 
   const routeCoords = route.state.status === "ready" ? route.state.route.coordinates : null;
   const scene = useMemo<Scene>(() => {
-    const toPoint = (p: PlaceCard) => ({ id: p._id, name: p.name, category: p.category, lat: p.lat, lng: p.lng });
     return {
-      points: (places ?? []).map(toPoint),
-      stops: (stops ?? []).map(toPoint),
+      points: (places ?? []).map(toMapPoint),
+      stops: (stops ?? []).map(toMapPoint),
       route: routeCoords,
       camera: routeCoords
         ? { key: `map-route:${routeKey}`, bounds: boundsOfCoords(routeCoords) }
