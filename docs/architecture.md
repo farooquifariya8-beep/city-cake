@@ -41,7 +41,7 @@ Mutations that need an account throw `NOT_SIGNED_IN`. The UI checks `useConvexAu
 
 | Path | Rendering | Notes |
 |---|---|---|
-| `/` | server | redirects to `/explore` |
+| `/` | server, cached hourly | landing: hero search, real photos and counts, day trips, feature previews |
 | `/explore` | map shell, client sheet | city switcher (`?city=`), category chips (`?cat=`), search (`?q=`), photo cards, clustered markers |
 | `/place/[id]` | map shell, client sheet | photo, facts, save, directions from the visitor or the city centre, facilities within 2 km, more to see |
 | `/nearby` | map shell, client sheet | geolocation with city-centre fallback, or a place's point (`?lat=&lng=&from=`); facility chips, radius, route here |
