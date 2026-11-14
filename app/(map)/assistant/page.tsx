@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { AssistantChat } from "@/components/assistant/assistant-chat";
-
-export const metadata: Metadata = { title: "Assistant" };
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <AssistantChat />;
+  redirect("/explore?chat=1");
 }

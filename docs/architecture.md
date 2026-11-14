@@ -46,8 +46,8 @@ Mutations that need an account throw `NOT_SIGNED_IN`. The UI checks `useConvexAu
 | `/place/[id]` | map shell, client sheet | photo, facts, save, directions from the visitor or the city centre, facilities within 2 km, more to see |
 | `/nearby` | map shell, client sheet | geolocation with city-centre fallback, or a place's point (`?lat=&lng=&from=`); facility chips, radius, route here |
 | `/map` | map shell, client sheet | route builder: `?stops=id,id` (2 to 10), `?mode=foot`, `?city=`, `?cat=` |
-| `/plan` | content shell, client | preferences in the URL, live `planner.preview`, save (`?save=1` saves after sign-in) |
-| `/assistant` | map shell, client sheet | chat UI, not connected: a labelled system note links to /plan and /map; places named in a message (matched with `places.search`) show as photo cards and on the map |
+| `/plan` | map shell, client sheet | trip builder: days, stops (search, map pin, place page, custom stop), reorder, times; Suggest a plan fills it from `planner.preview`; draft in localStorage; save or update |
+| `/assistant` | redirect | to `/explore?chat=1`. The assistant is a corner chat on every map page (full-screen sheet on phones) calling `assistant.chat` with the city and the focused place |
 | `/saved` | content shell, client, protected | saved places and trips (rename, delete, open) |
 | `/saved/[id]` | content shell, client, protected | one saved itinerary |
 | `/signin`, `/signup` | content shell, client | username and password, honour `?next=` |

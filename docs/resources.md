@@ -20,7 +20,7 @@ Researched on 2026-11-14. Install registry components with `bunx shadcn@latest a
 
 | Component | From | Where |
 |---|---|---|
-| `components/ui/chat-thread.tsx`, `prompt-suggestions.tsx` (plus `surface`, `agent-avatar`, `action-button`, `tooltip-hint`, `lib/motion-tokens.ts`, extra tokens in `globals.css`) | TuffUI | `/assistant` |
+| (removed) TuffUI `chat-thread`, `prompt-suggestions` | TuffUI | replaced by our own corner chat (`components/assistant/chat-panel.tsx`); its extra tokens remain in `globals.css` |
 | `components/motion/number-ticker.tsx` (plus `lib/ease.ts`, `lib/i18n.tsx`) | beUI | plan cost, route distance |
 | `components/shell/theme-switcher.tsx` | chanhdai | account menu |
 

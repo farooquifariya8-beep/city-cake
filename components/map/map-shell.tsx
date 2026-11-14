@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { animate } from "motion/react";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Map, MapControls, MapRoute, RouteProgress, useMap } from "@/components/ui/map";
+import { ChatDock } from "@/components/assistant/chat-panel";
 import { LogoMark } from "@/components/shell/logo";
 import { HeaderControls } from "@/components/shell/nav-tabs";
 import { Segmented } from "@/components/shell/segmented";
@@ -116,7 +117,7 @@ function MapCanvas() {
         showFullscreen
         className="top-3! right-3! hidden md:flex"
       />
-      <div className="absolute top-[max(calc(env(safe-area-inset-top)+80px),80px)] right-3 z-10 flex items-center gap-2 md:top-auto md:right-3 md:bottom-9">
+      <div className="absolute top-[max(calc(env(safe-area-inset-top)+80px),80px)] right-3 z-10 flex items-center gap-2 md:top-auto md:right-[76px] md:bottom-3">
         <div className="material rounded-[14px] p-1">
           <Segmented label="Map style" size="sm" value={mode} onChange={setMode} options={STYLE_OPTIONS} />
         </div>
@@ -140,9 +141,10 @@ export function MapShell({ children }: { children: ReactNode }) {
           >
             <LogoMark />
           </Link>
-          <HeaderControls />
+          <HeaderControls onMap />
         </header>
         <MapSheet>{children}</MapSheet>
+        <ChatDock />
       </div>
     </MapStoreProvider>
   );

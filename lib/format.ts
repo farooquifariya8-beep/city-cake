@@ -36,6 +36,7 @@ export function addMinutes(hhmm: string, minutes: number): string {
  */
 export function photoUrl(url: string, width?: 330 | 500 | 960): string {
   const clean = url.split("?")[0];
+  if (clean.includes("/wiki/Special:FilePath/")) return width ? `${clean}?width=${width}` : clean;
   if (!width) return clean;
   return clean.replace(/\/\d+px-([^/]+)$/, `/${width}px-$1`);
 }
@@ -53,4 +54,15 @@ export function clip(text: string, max: number): string {
   if (text.length <= max) return text;
   const cut = text.slice(0, max);
   return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+}
+
+const OPTIMIZED_HOSTS = new Set(["thumb.wikimedia.org", "upload.wikimedia.org", "commons.wikimedia.org"]);
+
+/** Hosts next.config.ts lets the image optimizer fetch. Others load as they are. */
+export function canOptimize(url: string): boolean {
+  try {
+    return OPTIMIZED_HOSTS.has(new URL(url).hostname);
+  } catch {
+    return false;
+  }
 }

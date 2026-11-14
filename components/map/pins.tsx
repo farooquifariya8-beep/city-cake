@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { MapMarker, MarkerContent } from "@/components/ui/map";
-import { photoUrl } from "@/lib/format";
+import { canOptimize, photoUrl } from "@/lib/format";
 import { CategoryIcon } from "@/components/category/category-icon";
 import { cn } from "@/lib/utils";
 import type { MapPoint, Origin } from "./map-store";
@@ -15,6 +15,7 @@ function Thumb({ point, size }: { point: MapPoint; size: number }) {
       alt=""
       width={size}
       height={size}
+      unoptimized={!canOptimize(point.image)}
       className="size-full object-cover"
     />
   );

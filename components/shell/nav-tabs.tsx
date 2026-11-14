@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import { CalendarRange, Compass, Heart, LocateFixed, Map as MapIcon, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { setChatOpen, useChatOpen } from "@/components/assistant/chat-store";
 import { AppMenu } from "./app-menu";
 import { SPRING } from "./segmented";
 
@@ -54,26 +55,30 @@ export function NavTabs({ className }: { className?: string }) {
 }
 
 /** Tabs, then the assistant and account buttons. Shared by both shells. */
-export function HeaderControls() {
-  const pathname = usePathname();
-  const onAssistant = pathname.startsWith("/assistant");
-  return (
-    <>
-      <NavTabs className="min-w-0 flex-1" />
-      <Link
-        href="/assistant"
-        aria-label="Assistant"
-        title="Assistant"
-        aria-current={onAssistant ? "page" : undefined}
-        className={cn(
+export function HeaderControls({ onMap = false }: { onMap?: boolean }) {
+  const chatOpen = useChatOpen();
+  const onAssistant = onMap && chatOpen;
+  const cls = cn(
           "press inline-flex size-9 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
           onAssistant
             ? "bg-[var(--route)] text-white"
             : "bg-black/[0.055] text-foreground hover:bg-black/10 dark:bg-white/10",
-        )}
-      >
-        <MessageCircle className="size-[18px]" strokeWidth={1.75} aria-hidden />
-      </Link>
+        // On the map the desktop has a corner button; the icon is for phones.
+        onMap && "md:hidden",
+      );
+  const icon = <MessageCircle className="size-[18px]" strokeWidth={1.75} aria-hidden />;
+  return (
+    <>
+      <NavTabs className="min-w-0 flex-1" />
+      {onMap ? (
+        <button type="button" aria-label="Assistant" title="Assistant" aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)} className={cls}>
+          {icon}
+        </button>
+      ) : (
+        <Link href="/explore?chat=1" aria-label="Assistant" title="Assistant" className={cls}>
+          {icon}
+        </Link>
+      )}
       <AppMenu />
     </>
   );

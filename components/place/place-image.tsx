@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { CategoryIcon } from "@/components/category/category-icon";
-import { photoUrl } from "@/lib/format";
+import { canOptimize, photoUrl } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /**
@@ -53,6 +53,7 @@ export function PlaceImage({
           fill
           sizes={sizes}
           preload={preload}
+          unoptimized={!canOptimize(url)}
           className="object-cover"
           onError={() => setAttempt((a) => a + 1)}
         />
