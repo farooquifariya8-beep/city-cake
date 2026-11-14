@@ -12,6 +12,7 @@ import type * as assistant from "../assistant.js";
 import type * as auth from "../auth.js";
 import type * as cities from "../cities.js";
 import type * as favorites from "../favorites.js";
+import type * as geo from "../geo.js";
 import type * as images from "../images.js";
 import type * as ingest from "../ingest.js";
 import type * as itineraries from "../itineraries.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   cities: typeof cities;
   favorites: typeof favorites;
+  geo: typeof geo;
   images: typeof images;
   ingest: typeof ingest;
   itineraries: typeof itineraries;
