@@ -230,3 +230,11 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* On phones the bottom sheet covers the map's bottom edge, so credits sit up top. */
+@media (max-width: 767px) {
+  .maplibregl-ctrl-bottom-right {
+    top: calc(max(env(safe-area-inset-top), 0px) + 124px);
+    bottom: auto;
+  }
+}
