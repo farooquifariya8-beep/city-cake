@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  devIndicators: false,
   experimental: {
     // The dev-only instant-navigation check fails to load the Convex Auth
     // client module in its prefetch pass. Validate only segments that opt in.
