@@ -68,8 +68,8 @@ export function PlanMock() {
 const NEARBY_SAMPLE = [
   { name: "Govt Medical College & Hospital", cat: "hospital", m: "410 m" },
   { name: "HDFC ATM", cat: "atm", m: "530 m" },
-  { name: "Apollo Pharmacy", cat: "pharmacy", m: "580 m" },
-  { name: "Central Bus Stand", cat: "transport", m: "1.2 km" },
+  { name: "Shri Sai Hospital and Research Centre", cat: "hospital", m: "590 m" },
+  { name: "Bank of Maharashtra", cat: "atm", m: "600 m" },
 ];
 
 export function NearbyMock() {
