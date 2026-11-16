@@ -1,6 +1,6 @@
 <img src="assets/icon.svg" width="64" height="64" alt="">
 
-# City Cake
+# City
 
 A city guide for Chhatrapati Sambhajinagar, Maharashtra, and the places a visitor goes from there: Ellora, Daulatabad, Ajanta, Paithan, Jalna and Lonar.
 

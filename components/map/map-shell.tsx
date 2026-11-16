@@ -137,7 +137,7 @@ export function MapShell({ children }: { children: ReactNode }) {
         <header className="material absolute inset-x-3 top-[max(env(safe-area-inset-top),12px)] z-30 flex h-14 items-center gap-1.5 rounded-[20px] px-1.5 md:top-3 md:right-auto md:w-[400px] md:gap-2 md:px-2">
           <Link
             href="/explore"
-            aria-label="City Cake, go to explore"
+            aria-label="City, go to explore"
             className="hidden rounded-[10px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50 md:block"
           >
             <LogoMark />

@@ -3,7 +3,7 @@ name: citycake-mode
 description: "The router for any multi-step task in this repo. Use at the start of a feature, a design pass, a data change or a fix. Reads the request, picks a playbook, and names the skills and docs each step needs."
 ---
 
-# City Cake mode
+# City mode
 
 Read `AGENTS.md` in full first. It holds the rules this skill assumes.
 

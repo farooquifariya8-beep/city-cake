@@ -34,7 +34,7 @@ export default async function AuthLayout({ children }: LayoutProps<"/">) {
         <header className="flex h-14 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-[16px] font-semibold tracking-[-0.01em]">
             <LogoMark />
-            City Cake
+            City
           </Link>
           <Link
             href="/"

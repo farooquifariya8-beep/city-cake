@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# City Cake
+# City
 
 A city guide for Chhatrapati Sambhajinagar and its day trips (Ellora, Daulatabad, Ajanta, Paithan, Jalna, Lonar). One app covers places, facilities, a map with routes, a trip planner and a travel assistant. It is a college mini-project, built to be shown live.
 

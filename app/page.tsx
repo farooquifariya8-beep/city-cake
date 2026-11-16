@@ -18,7 +18,7 @@ import { getLandingData } from "@/components/landing/data";
 import { CATEGORY_KEYS } from "@/convex/lib/categories";
 
 export const metadata: Metadata = {
-  title: "City Cake: a guide to Chhatrapati Sambhajinagar, Ellora and Ajanta",
+  title: "City: a guide to Chhatrapati Sambhajinagar, Ellora and Ajanta",
 };
 
 const QUICK = [
@@ -309,7 +309,7 @@ function Nav() {
       <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 md:px-8">
         <Link href="/" className="flex items-center gap-2 text-[16px] font-semibold tracking-[-0.01em]">
           <LogoMark />
-          City Cake
+          City
         </Link>
         <nav className="flex items-center gap-1" aria-label="Main">
           <NavLinks />
@@ -358,7 +358,7 @@ function Footer() {
       <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-5 py-12 text-[14px] md:grid-cols-[1.4fr_1fr_1fr] md:px-8">
         <div>
           <span className="flex items-center gap-2 text-[16px] font-semibold">
-            <LogoMark className="size-7 rounded-lg" /> City Cake
+            <LogoMark className="size-7 rounded-lg" /> City
           </span>
           <p className="mt-3 max-w-[36ch] text-foreground/60">
             A city guide for Chhatrapati Sambhajinagar and its day trips. A college project.

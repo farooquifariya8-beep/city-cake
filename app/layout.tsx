@@ -15,8 +15,8 @@ const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "City Cake: Chhatrapati Sambhajinagar city guide",
-    template: "%s · City Cake",
+    default: "City: Chhatrapati Sambhajinagar city guide",
+    template: "%s · City",
   },
   description:
     "Find places, facilities and routes around Chhatrapati Sambhajinagar, Ellora and Ajanta, and plan a trip day by day.",
