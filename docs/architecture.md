@@ -52,10 +52,10 @@ Mutations that need an account throw `NOT_SIGNED_IN`. Pages are gated in `proxy.
 | `/assistant` | redirect | to `/explore?chat=1`. The assistant is a corner chat on every map page (full-screen sheet on phones) calling `assistant.chat` with the city and the focused place |
 | `/saved` | content shell, client, protected | saved places and trips (rename, delete, open) |
 | `/saved/[id]` | content shell, client, protected | one saved itinerary |
-| `/signin`, `/signup` | auth shell (`app/(auth)/layout.tsx`), no top bar | username and password, honour `?next=` (default `/plan`); cream mesh and a real photo, always light |
+| `/signin`, `/signup` | auth shell (`app/(auth)/layout.tsx`), no top bar | username and password, every sign-in lands on `/plan`; cream mesh and a real photo, always light |
 
 Two shells. `app/(map)/layout.tsx` renders one persistent MapLibre map (`components/map/map-shell.tsx`) with a floating top control and a sheet (left panel on desktop, bottom sheet on mobile); pages set what the map shows through `components/map/map-store.tsx` (`useMapScene`, `useMapPointClick`). `app/(content)/layout.tsx` is a slim top bar and a centred column up to 1100 px. Both show the same five tabs (Explore, Nearby, Map, Plan, Saved), an assistant button and the account menu.
 
 ## Auth
 
-`lib/serverAuth.ts` lists the functions allowed to create a session. `lib/convexAuth.tsx` builds the proxy helpers and the server provider. `proxy.ts` protects every app page (everything but `/` and the auth pages) and sends signed-in users on an auth page to `next` or `/plan`. Client code uses `useConvexAuth` from `convex/react`, `useAuthActions` from `@convex-dev/auth/react`, and `useSignInWithUsernamePassword` / `useSignUpWithUsernamePassword` from `@convex-dev/auth/methods/username-password/react`.
+`lib/serverAuth.ts` lists the functions allowed to create a session. `lib/convexAuth.tsx` builds the proxy helpers and the server provider. `proxy.ts` protects every app page (everything but `/` and the auth pages), sends signed-out visitors to `/signin`, and signed-in users on an auth page to `/plan`. Client code uses `useConvexAuth` from `convex/react`, `useAuthActions` from `@convex-dev/auth/react`, and `useSignInWithUsernamePassword` / `useSignUpWithUsernamePassword` from `@convex-dev/auth/methods/username-password/react`.

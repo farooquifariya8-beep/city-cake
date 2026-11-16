@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -11,7 +11,6 @@ import {
 } from "@convex-dev/auth/methods/username-password/react";
 import { api } from "@/convex/_generated/api";
 import { SPRING_LAYOUT } from "@/lib/ease";
-import { safeNext } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type UserError = { error: string; minimumLength?: number; maximumLength?: number; retryAfterMs?: number };
@@ -50,7 +49,7 @@ function message(e: UserError): { text: string; field: "username" | "password" |
   }
 }
 
-/** After signing in, people plan their trip first. */
+/** Every sign-in lands on the planner: planning the trip is where the app starts. */
 const AFTER_SIGN_IN = "/plan";
 
 const COPY = {
@@ -72,7 +71,6 @@ const delay = (ms: number) => ({ "--d": `${ms}ms` }) as React.CSSProperties;
 
 export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const router = useRouter();
-  const next = safeNext(useSearchParams().get("next"), AFTER_SIGN_IN);
   const signIn = useSignInWithUsernamePassword(api.auth);
   const signUp = useSignUpWithUsernamePassword(api.auth);
   const pending = mode === "signin" ? signIn.pending : signUp.pending;
@@ -88,20 +86,19 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
     const credentials = { username: username.trim(), password };
     const result = mode === "signin" ? await signIn.signIn(credentials) : await signUp.signUp(credentials);
     if (result.status === "complete") {
-      router.push(next);
+      router.push(AFTER_SIGN_IN);
       router.refresh();
       return;
     }
     setError(message(result.userError as UserError));
   }
 
-  const q = `?next=${encodeURIComponent(next)}`;
   const field =
     "h-12 w-full rounded-2xl bg-white px-4 text-[16px] text-[var(--lp-ink)] shadow-[0_1px_2px_rgb(60_40_10/0.06)] ring-1 ring-black/10 outline-none transition-shadow duration-150 placeholder:text-foreground/35 focus-visible:ring-2 focus-visible:ring-[var(--route)] disabled:opacity-60 aria-invalid:ring-2 aria-invalid:ring-destructive/60";
 
   const tabs = [
-    { key: "signup", label: "Create account", href: `/signup${q}` },
-    { key: "signin", label: "Sign in", href: `/signin${q}` },
+    { key: "signup", label: "Create account", href: "/signup" },
+    { key: "signin", label: "Sign in", href: "/signin" },
   ] as const;
 
   return (
@@ -224,7 +221,7 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
       <p className="mt-6 text-center text-[14px] text-foreground/60">
         {mode === "signin" ? "New here? " : "Have an account? "}
         <Link
-          href={mode === "signin" ? `/signup${q}` : `/signin${q}`}
+          href={mode === "signin" ? "/signup" : "/signin"}
           replace
           className="font-medium text-[var(--route)] hover:underline"
         >

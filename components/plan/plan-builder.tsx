@@ -124,7 +124,7 @@ export function PlanBuilder({ back }: { back?: { label: string; onClick: () => v
   async function onSave() {
     if (!isAuthenticated) {
       toast("Sign in to save your plan", { description: "Your draft stays here while you do." });
-      router.push(`/signin?next=${encodeURIComponent("/plan")}`);
+      router.push("/signin");
       return;
     }
     setSaving(true);

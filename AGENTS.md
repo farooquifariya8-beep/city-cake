@@ -45,7 +45,7 @@ bun run build                    # the gate: must pass before you commit
 
 ## Rules
 
-1. **The landing is public, the app needs an account.** `/`, `/signin` and `/signup` work signed out. Every other page is gated in `proxy.ts`, which sends visitors to `/signin?next=...`. A new session lands on `/plan`, and the map pages then ask once for location (`components/map/location-prompt.tsx`), starting in Chhatrapati Sambhajinagar until a fix arrives.
+1. **The landing is public, the app needs an account.** `/`, `/signin` and `/signup` work signed out. Every other page is gated in `proxy.ts`, which sends visitors to `/signin`. Every sign-in lands on `/plan`, and the map pages then ask once for location (`components/map/location-prompt.tsx`), starting in Chhatrapati Sambhajinagar until a fix arrives.
 2. **The assistant is real, the planner is rules.** The assistant (`convex/assistant.ts`) calls Groq `openai/gpt-oss-120b` with our places as grounding; the key lives only in the Convex env var `GROQ_API_KEY`, never in code or the browser. It may recommend only places from our data. The trip suggestion is rule-based (`convex/lib/planner.ts`), and users can build or edit any plan by hand.
 3. **Data comes from Convex, never from the browser.** The browser never calls Overpass, Nominatim, OSRM or Wikipedia. Convex actions fetch, Convex tables cache, queries serve. See [docs/data.md](docs/data.md) for the policies this protects.
 4. **One source of truth for categories and cities.** `convex/lib/categories.ts` and `convex/lib/cities.ts`. UI colours, icons, filters and ingest rules all derive from them. Never hard-code a category list in a component.

@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
@@ -8,21 +8,11 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 
-/** Where to come back to after signing in from the current page. */
-export function useSignInHref(extra?: Record<string, string>): string {
-  const pathname = usePathname();
-  const params = new URLSearchParams(useSearchParams().toString());
-  for (const [k, v] of Object.entries(extra ?? {})) params.set(k, v);
-  const search = params.toString();
-  return `/signin?next=${encodeURIComponent(search ? `${pathname}?${search}` : pathname)}`;
-}
-
 /** Saved state of a place plus a toggle that handles the signed-out path. */
 export function useSavePlace(placeId: Id<"places">, name: string) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const ids = useQuery(api.favorites.ids, isAuthenticated ? {} : "skip");
   const router = useRouter();
-  const signInHref = useSignInHref();
   const toggle = useMutation(api.favorites.toggle).withOptimisticUpdate((store, args) => {
     const current = store.getQuery(api.favorites.ids, {});
     if (!current) return;
@@ -41,7 +31,7 @@ export function useSavePlace(placeId: Id<"places">, name: string) {
     if (isLoading) return;
     if (!isAuthenticated) {
       toast("Sign in again to save places");
-      router.push(signInHref);
+      router.push("/signin");
       return;
     }
     try {

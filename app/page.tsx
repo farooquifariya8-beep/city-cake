@@ -38,8 +38,8 @@ const STEPS = [
 ] as const;
 
 /** Every way into the app starts with an account, then the planner. */
-const START = `/signup?next=${encodeURIComponent("/plan")}`;
-const SIGN_IN = `/signin?next=${encodeURIComponent("/plan")}`;
+const START = "/signup";
+const SIGN_IN = "/signin";
 
 const COUNT_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useConvexAuth, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { LogIn, LogOut, UserPlus, UserRound } from "lucide-react";
@@ -24,10 +24,8 @@ export function AppMenu({ className }: { className?: string }) {
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip");
   const { signOut } = useAuthActions();
   const router = useRouter();
-  const pathname = usePathname();
 
   const username = me?.username ?? null;
-  const next = encodeURIComponent(pathname);
 
   async function handleSignOut() {
     try {
@@ -83,13 +81,13 @@ export function AppMenu({ className }: { className?: string }) {
         ) : (
           <>
             <DropdownMenuItem asChild>
-              <Link href={`/signin?next=${next}`}>
+              <Link href="/signin">
                 <LogIn strokeWidth={1.75} aria-hidden />
                 Sign in
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/signup?next=${next}`}>
+              <Link href="/signup">
                 <UserPlus strokeWidth={1.75} aria-hidden />
                 Create an account
               </Link>

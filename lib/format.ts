@@ -41,14 +41,6 @@ export function photoUrl(url: string, width?: 330 | 500 | 960): string {
   return clean.replace(/\/\d+px-([^/]+)$/, `/${width}px-$1`);
 }
 
-/** Only same-site paths are safe to redirect to after sign-in. */
-export function safeNext(next: string | null | undefined, fallback = "/explore"): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
-    return fallback;
-  }
-  return next;
-}
-
 /** Trim text at a word boundary. */
 export function clip(text: string, max: number): string {
   if (text.length <= max) return text;
