@@ -13,6 +13,7 @@ import { HOME_CITY, type LngLat } from "@/lib/geo";
 import { CameraController, RecenterButton } from "./camera";
 import { MapStoreProvider, useHighlight, useMapActions, useScene } from "./map-store";
 import { Map3D, MAP_FONTS, MAP_STYLES, STYLE_OPTIONS, useMapStyle } from "./map-style";
+import { LocationPrompt } from "./location-prompt";
 import { HoverPin, OriginPin, SelectedPin, StopPin } from "./pins";
 import { PlacesLayer } from "./places-layer";
 import { MapSheet } from "./sheet";
@@ -143,6 +144,7 @@ export function MapShell({ children }: { children: ReactNode }) {
           </Link>
           <HeaderControls onMap />
         </header>
+        <LocationPrompt />
         <MapSheet>{children}</MapSheet>
         <ChatDock />
       </div>

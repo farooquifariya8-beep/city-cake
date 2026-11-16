@@ -8,6 +8,7 @@ import type { GeoResult } from "@/convex/geo";
 import { CategoryTile } from "@/components/category/category-chip";
 import { categoryLabel } from "@/components/category/category-icon";
 import { Button } from "@/components/ui/button";
+import { HOME_CITY } from "@/lib/geo";
 import { EXAMPLES, setRoadTrip, useRoadTrip, type End } from "@/lib/road-trip";
 import type { MyLocation } from "@/lib/use-my-location";
 import { Stepper } from "./stepper";
@@ -176,12 +177,19 @@ function EndField({
   );
 }
 
+/** Where trips start until the visitor's location is known. */
+const HOME_END: End = { name: HOME_CITY.name, lat: HOME_CITY.lat, lng: HOME_CITY.lng };
+
 function MineLabel({ loc }: { loc: MyLocation }) {
   if (loc.status === "found") return <>My location{loc.town ? <span className="font-normal text-muted-foreground">, {loc.town}</span> : null}</>;
   if (loc.status === "locating") return <>Finding you</>;
-  if (loc.status === "denied") return <span className="font-normal text-muted-foreground">Location is off. Type a start place.</span>;
-  if (loc.status === "unavailable") return <span className="font-normal text-muted-foreground">Location isn&apos;t available. Type a start place.</span>;
-  return <>My location</>;
+  const why = loc.status === "denied" ? "location is off" : loc.status === "unavailable" ? "location isn't available" : "until we have your location";
+  return (
+    <>
+      {HOME_CITY.name}
+      <span className="font-normal text-muted-foreground">, {why}</span>
+    </>
+  );
 }
 
 /** Step 1: start, destination and days. */
@@ -202,9 +210,10 @@ export function WhereStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [found?.lat, found?.lng, found?.town],
   );
-  const blocked = loc.status === "denied" || loc.status === "unavailable";
-  const from = trip.from ?? mineEnd;
-  const waiting = asked && !blocked;
+  const locating = loc.status === "locating";
+  // "My location" means the city until a real fix arrives.
+  const from = trip.from ?? mineEnd ?? (locating ? null : HOME_END);
+  const waiting = asked && locating;
 
   // "Find" pressed before the location arrived: go once it does. Moving to
   // the next step unmounts this one, so nothing here needs resetting.
@@ -219,7 +228,7 @@ export function WhereStep({
     locate();
   }
 
-  const canFind = !!trip.to && !(trip.from === null && blocked) && !waiting;
+  const canFind = !!trip.to && !waiting;
 
   return (
     <div className="px-4 pt-2 pb-4 md:pt-5">
