@@ -68,7 +68,8 @@ export function useLivePosition(
         on.current?.onFix?.(fix);
       },
       (err) => {
-        if (err.code === err.TIMEOUT && last.current) return;
+        // A tunnel or a slow fix after a good one: keep the last fix and keep watching.
+        if (err.code !== err.PERMISSION_DENIED && last.current) return;
         const status = err.code === err.PERMISSION_DENIED ? "denied" : "unavailable";
         setPos({ status });
         on.current?.onError?.(status);

@@ -45,7 +45,8 @@ export function BannerShell({ children, below }: { children: ReactNode; below?: 
     <div
       role="status"
       aria-live="polite"
-      className="overflow-hidden rounded-[24px] bg-primary text-primary-foreground shadow-[var(--shadow-float)]"
+      className="overflow-hidden rounded-[24px] bg-primary text-primary-foreground"
+      style={{ boxShadow: "var(--shadow-float)" }}
     >
       <div className="flex min-h-[84px] items-center gap-3.5 px-4 py-3.5">{children}</div>
       {below}
