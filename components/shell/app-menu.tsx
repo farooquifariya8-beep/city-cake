@@ -32,7 +32,7 @@ export function AppMenu({ className }: { className?: string }) {
   async function handleSignOut() {
     try {
       await signOut();
-      router.push("/explore");
+      router.push("/");
       router.refresh();
       toast("Signed out");
     } catch {
@@ -65,7 +65,7 @@ export function AppMenu({ className }: { className?: string }) {
               Signed in as <span className="text-foreground">{username ?? "..."}</span>
             </>
           ) : (
-            "Browsing without an account"
+            "Signed out"
           )}
         </DropdownMenuLabel>
         <div className="flex items-center justify-between px-2 py-1.5 text-[14px]">

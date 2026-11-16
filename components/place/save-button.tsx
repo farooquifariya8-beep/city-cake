@@ -40,7 +40,7 @@ export function useSavePlace(placeId: Id<"places">, name: string) {
   async function onToggle() {
     if (isLoading) return;
     if (!isAuthenticated) {
-      toast("Sign in to save places", { description: "Browsing works without an account." });
+      toast("Sign in again to save places");
       router.push(signInHref);
       return;
     }

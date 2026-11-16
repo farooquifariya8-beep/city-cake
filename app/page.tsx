@@ -15,6 +15,7 @@ import { NavLinks } from "@/components/landing/nav-links";
 import { Reveal, SmoothScroll } from "@/components/landing/motion";
 import { ChatMock, NearbyMock, PlanMock, RouteMock, SearchMock } from "@/components/landing/mocks";
 import { getLandingData } from "@/components/landing/data";
+import { CATEGORY_KEYS } from "@/convex/lib/categories";
 
 export const metadata: Metadata = {
   title: "City Cake: a guide to Chhatrapati Sambhajinagar, Ellora and Ajanta",
@@ -35,6 +36,10 @@ const STEPS = [
     "Time at each stop, the drive between them, lunch after 12:30, and a warning if a site is shut that weekday.",
   ],
 ] as const;
+
+/** Every way into the app starts with an account, then the planner. */
+const START = `/signup?next=${encodeURIComponent("/plan")}`;
+const SIGN_IN = `/signin?next=${encodeURIComponent("/plan")}`;
 
 const COUNT_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 
@@ -146,10 +151,25 @@ export default async function Home() {
               Places to see, the nearest pharmacy, routes on a map and a plan for each day. For the city and its day
               trips to Ellora, Daulatabad and Ajanta.
             </p>
-            <div className="lp-rise mt-8" style={rise(320)}>
+            <div className="lp-rise mt-8 flex flex-wrap items-center gap-3" style={rise(300)}>
+              <Link
+                href={START}
+                className="press group inline-flex h-12 items-center gap-2 rounded-full bg-[var(--lp-ink)] px-6 text-[15px] font-medium text-white"
+              >
+                Plan my trip
+                <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+              </Link>
+              <Link
+                href={SIGN_IN}
+                className="press inline-flex h-12 items-center rounded-full bg-white/70 px-5 text-[15px] font-medium ring-1 ring-black/10 backdrop-blur hover:bg-white"
+              >
+                I have an account
+              </Link>
+            </div>
+            <div className="lp-rise mt-6" style={rise(380)}>
               <HeroSearch />
             </div>
-            <div className="lp-rise mt-4 flex flex-wrap gap-2" style={rise(400)}>
+            <div className="lp-rise mt-4 flex flex-wrap gap-2" style={rise(440)}>
               {QUICK.map((q) => (
                 <Link
                   key={q.href}
@@ -180,7 +200,7 @@ export default async function Home() {
               <Stat value={places} label="places to see" delay={0.05} />
               <Stat value={facilities} label="hospitals, ATMs, pharmacies and more" delay={0.12} />
               <Stat value={towns.length} label="towns covered" delay={0.19} />
-              <Stat value={0} label="sign-ups needed to browse" delay={0.26} />
+              <Stat value={CATEGORY_KEYS.length} label="kinds of places and facilities" delay={0.26} />
             </dl>
           </div>
           <Reveal delay={0.1} className="self-center">
@@ -250,27 +270,27 @@ export default async function Home() {
             <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(20_12_4/0.78),rgb(20_12_4/0.2))]" />
             <div className="max-w-[580px] px-7 py-16 md:px-14 md:py-24">
               <h2 className="text-[34px] leading-[1.05] font-semibold tracking-[-0.03em] text-balance md:text-[48px]">
-                Open the map and start with what&apos;s close
+                Plan the days, then follow the road
               </h2>
               <p className="mt-4 text-[16.5px] text-white/80">
-                No account needed. Sign up only when you want to save places and plans.
+                Make a free account, pick your stops, and drive with live directions, speed and arrival time on the map.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link
-                  href="/explore"
+                  href={START}
                   className="press group inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-[15px] font-medium text-black"
                 >
-                  Open the map
+                  Plan my trip
                   <ArrowRight
                     className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
                     aria-hidden
                   />
                 </Link>
                 <Link
-                  href="/plan"
+                  href={SIGN_IN}
                   className="press inline-flex h-12 items-center rounded-full px-6 text-[15px] font-medium text-white ring-1 ring-white/40 hover:bg-white/10"
                 >
-                  Plan a trip
+                  Sign in
                 </Link>
               </div>
             </div>
@@ -294,10 +314,16 @@ function Nav() {
         <nav className="flex items-center gap-1" aria-label="Main">
           <NavLinks />
           <Link
-            href="/explore"
-            className="press ml-2 inline-flex h-9 items-center gap-1.5 rounded-full bg-[var(--lp-ink)] px-4 text-[14px] font-medium text-white"
+            href={SIGN_IN}
+            className="press inline-flex h-9 items-center rounded-full px-3.5 text-[14px] text-foreground/70 hover:text-foreground"
           >
-            Open the map
+            Sign in
+          </Link>
+          <Link
+            href={START}
+            className="press ml-1 inline-flex h-9 items-center gap-1.5 rounded-full bg-[var(--lp-ink)] px-4 text-[14px] font-medium text-white"
+          >
+            Get started
           </Link>
         </nav>
       </div>

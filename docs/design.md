@@ -21,7 +21,7 @@ Local character comes through colour, not decoration. Each category keeps its hu
 ## Fixed rules
 
 - **Banned:** hue-shifting gradients, gradient text, coloured glows, blobs, neon, emoji icons, pulse or shimmer decoration, parallax.
-- **Landing exception:** the landing page (`/`) is always light and may use one slow, soft mesh backdrop in the regional palette behind its hero, plus scroll-linked parallax and Lenis smooth scrolling. Nowhere else.
+- **Landing exception:** the landing page (`/`) is always light and may use one slow, soft mesh backdrop in the regional palette behind its hero, plus scroll-linked parallax and Lenis smooth scrolling. The sign-in and sign-up pages share its light theme and mesh (no parallax), so the way in looks like the front door. Nowhere else.
 - **Allowed:** a frosted material (`bg-background/80 backdrop-blur-xl` plus a hairline border) only on panels floating over the map, as Apple Maps does. Nowhere else.
 - **Spacing:** a 4 px grid. Concentric radii: inner radius is the outer radius minus the padding.
 - **Radius:** sheets 20 to 24, cards 16, controls 10 to 12, chips full.
