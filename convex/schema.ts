@@ -24,6 +24,22 @@ export const stopValidator = v.object({
   note: v.optional(v.string()),
 });
 
+/** One OSRM maneuver: where it happens and the road it leads onto. */
+export const navStepValidator = v.object({
+  leg: v.number(),
+  type: v.string(),
+  modifier: v.optional(v.string()),
+  exit: v.optional(v.number()),
+  name: v.string(),
+  ref: v.optional(v.string()),
+  distanceM: v.number(),
+  durationS: v.number(),
+  lng: v.number(),
+  lat: v.number(),
+});
+
+export const navLegValidator = v.object({ distanceM: v.number(), durationS: v.number() });
+
 export const dayValidator = v.object({
   day: v.number(),
   title: v.string(),
@@ -87,6 +103,9 @@ export default defineSchema({
     coordinates: v.array(v.array(v.number())),
     distanceM: v.number(),
     durationS: v.number(),
+    // Only on turn-by-turn routes from routes.navigate.
+    legs: v.optional(v.array(navLegValidator)),
+    steps: v.optional(v.array(navStepValidator)),
   }).index("by_key", ["key"]),
 
   // Places along a road route, from trips.alongRoute. Expires after a week.

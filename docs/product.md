@@ -6,15 +6,18 @@ A visitor arriving in Chhatrapati Sambhajinagar for two to four days. They know 
 
 ## What they can do
 
-| Job | Where | Signed out? |
+The landing page (`/`) is public. Its buttons lead to sign-up, and a new session lands on `/plan`. Every page of the app needs an account.
+
+| Job | Where | Account? |
 |---|---|---|
 | Explore the city: heritage, sights, museums, temples, food, cafes, shopping, parks, stays | `/explore`, `/explore/[city]`, `/place/[id]` | yes |
 | Find nearby facilities: hospitals, pharmacies, ATMs, transport, fuel, toilets, police | `/nearby` | yes |
 | See places on a map and draw a route between selected places | `/map` | yes |
-| Plan a road trip: start, destination and days, pick sights, food, stays and fuel along the road, get the days planned; or build a trip by hand | `/plan` | yes, saving needs an account |
+| Plan a road trip: start, destination and days, pick sights, food, stays and fuel along the road, get the days planned; or build a trip by hand | `/plan` | yes |
+| Drive a planned day with live directions: turn banners, distance and time left, arrival, speed, a heading arrow on the map, rerouting when off the road | `/journey?day=n` | yes |
 | Ask the travel assistant (Groq, grounded in our places) | chat popup on map pages | yes |
 | Save favourite places and itineraries | `/saved` | no |
-| Create an account and sign in | `/signup`, `/signin` | n/a |
+| Create an account and sign in | `/signup`, `/signin` | no |
 
 ## The region
 
